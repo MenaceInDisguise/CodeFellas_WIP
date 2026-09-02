@@ -1,0 +1,22 @@
+@using Prosjekt.Models.ModelView
+@model BehovViewModel
+
+@{
+    ViewData["Title"] = "Opprett et nytt behov";
+}
+
+<form asp-controller="Behov" asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <input asp-for="Description" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Total"></label>
+        <input asp-for="Total" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Lagre</button>
+</form>

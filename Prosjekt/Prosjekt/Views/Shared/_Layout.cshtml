@@ -24,23 +24,42 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Ressurs" asp-action="Index">Registrer ressurs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Behov" asp-action="Index">Registrer Behov</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Personvern</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <div class="container-fluid flex-grow-1 d-flex flex-column">
+        <div class="row flex-grow-1">
+            <!-- Venstremeny -->
+            <aside class="col-md-3 col-lg-2 border-end pe-3 mb-4 d-flex flex-column" style="min-height: calc(100vh - 160px);">
+                <ul class="nav nav-pills flex-column gap-2">
+                    <strong>Registrering</strong>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark border" asp-area="" asp-controller="Ressurs" asp-action="Index">Registrer ressurs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark border" asp-area="" asp-controller="Behov" asp-action="Index">Registrer Behov</a>
+                    </li>
+                    <strong>Kriseinformasjon</strong>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark border" asp-area="" asp-controller="Kriseinformasjon" asp-action="Index">Kriseinformasjon</a>
+                    </li>
+                </ul>
+
+                <!-- Innstillinger helt nederst uten boks -->
+                <div class="mt-auto">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Innstillinger" asp-action="Index"><strong>Innstillinger</strong></a>
+                </div>
+            </aside>
+
+            <!-- Hovedinnhold -->
+            <main role="main" class="col-md-9 col-lg-10 pb-3">
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
     <footer class="border-top footer text-muted">

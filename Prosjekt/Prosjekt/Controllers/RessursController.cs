@@ -11,7 +11,11 @@ namespace Prosjekt.Controllers
         }
         [HttpPost]
         public ActionResult Create(RessursViewModel model)
-        {   
+        {
+            if (model.Navn == null || model.Beskrivelse == null || model.Antall <= 0)
+            {
+                throw new ArgumentException("Navn, beskrivelse eller antall kan ikke være null.");
+            }
             return View(model);
         }
 

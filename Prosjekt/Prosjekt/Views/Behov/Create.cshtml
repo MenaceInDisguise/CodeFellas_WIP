@@ -1,0 +1,12 @@
+@using Prosjekt.Models.ModelView
+@model BehovViewModel
+
+@{
+	ViewData["Title"] = "Nytt behov opprettet";
+}
+
+
+<h1><strong>Ny ressurs opprettet</strong></h1>
+<p><strong>Navn:</strong> @Model.Name</p>
+<p><strong>Beskrivelse:</strong> @Model.Description</p>
+<p><strong>Antall:</strong> @Model.Total</p>

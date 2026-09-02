@@ -1,0 +1,22 @@
+﻿@using Prosjekt.Models.ModelView
+@model RessursViewModel
+
+@{
+    ViewData["Title"] = "Opprett ny ressurs";
+}
+
+<form asp-controller="Ressurs" asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Navn"></label>
+        <input asp-for="Navn" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Beskrivelse"></label>
+        <input asp-for="Beskrivelse" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Antall"></label>
+        <input asp-for="Antall" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Lagre</button>
+</form>

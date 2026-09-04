@@ -2,8 +2,8 @@ namespace Prosjekt.Models.ModelView
 {
     public class BehovViewModel
     {
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public int Total { get; set; } = 0;
+        public string Navn { get; set; } = string.Empty;
+        public string Beskrivelse { get; set; } = string.Empty;
+        public int Totalt { get; set; } = 0;
     }
 }

@@ -12,7 +12,7 @@ namespace Prosjekt.Controllers
         [HttpPost]
         public ActionResult Create(BehovViewModel model)
         {   
-            if (model.Name == null || model.Description == null || model.Total <= 0)
+            if (model.Navn == null || model.Beskrivelse == null || model.Totalt <= 0)
             {
                 throw new ArgumentException("Navn, beskrivelse eller antall kan ikke være null.");
             }

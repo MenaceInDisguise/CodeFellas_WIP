@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Prosjekt.Models;
 
 namespace Prosjekt.Controllers;
-
 public class HomeController : Controller
 {
     private static List<PositionModel> positions = new List<PositionModel>();
@@ -12,7 +11,7 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Privacy()
+    public IActionResult Personvern()
     {
         return View();
     }

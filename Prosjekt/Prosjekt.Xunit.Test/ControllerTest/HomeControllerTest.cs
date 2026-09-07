@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Prosjekt.Controllers;
-using Prosjekt.Models;
+using Prosjekt.Models.ModelView;
 using Xunit;
 
 namespace Prosjekt.Xunit

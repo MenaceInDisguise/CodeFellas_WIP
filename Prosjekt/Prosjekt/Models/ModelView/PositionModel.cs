@@ -1,4 +1,6 @@
-﻿namespace Prosjekt.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Prosjekt.Models.ModelView
 {
     public class PositionModel
     {

@@ -1,0 +1,58 @@
+﻿@model Prosjekt.Models.ModelView.PositionModel
+
+<h2>Registrer posisjon</h2>
+
+<div class="row">
+    <!-- Skjema på venstre side -->
+    <div class="col-md-4">
+        <form asp-action="CorrectMap" method="post">
+            <div class="form-group">
+                <label for="latitude">Høydegrader</label>
+                <input type="text" id="latitude" name="Latitude" class="form-control" readonly required />
+            </div>
+
+            <div class="form-group">
+                <label for="longitude">Breddegrader</label>
+                <input type="text" id="longitude" name="Longitude" class="form-control" readonly required />
+            </div>
+
+            <div class="form-group">
+                <label for="description">Beskrivelse</label>
+                <textarea id="description" name="Description" class="form-control" rows="4" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-2 w-100">Lagre</button>
+        </form>
+    </div>
+
+    <!-- Kart på høyre side -->
+    <div class="col-md-8">
+        <div id="map" style="height: 450px;"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var map = L.map('map').setView([58.1467, 7.9956], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var currentMarker; // Variabel for å holde styr på eksisterende markør
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+
+            // Fjern forrige markør slik at det kun er én valgt posisjon
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+
+            currentMarker = L.marker([lat, lng]).addTo(map);
+        });
+    </script>
+}

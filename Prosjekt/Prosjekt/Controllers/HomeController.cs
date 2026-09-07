@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Prosjekt.Models;
 
 namespace Prosjekt.Controllers;
-
+// Hei dette er en test
 public class HomeController : Controller
 {
     public IActionResult Index()

@@ -14,35 +14,21 @@
 
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-sm navbar-dark glass-navbar">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Prosjekt</a>
+                <a class="navbar-brand text-white fw-bold" asp-area="" asp-controller="Home" asp-action="Index">Prosjekt</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
-                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between align-items-center">
-    <!-- Venstrejustert tomrom eller menyvalg om ønskelig -->
-    <div></div>
-
-    <!-- Høyrejustert bruker- og varslingsseksjon -->
-    <div class="d-flex align-items-center gap-3 ms-auto">
-        <!-- Varslingsbjelle -->
-        <button class="btn btn-link text-dark position-relative p-1 border-0">
-            <i class="bi bi-bell fs-5"></i>
-            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-        </button>
-
-        <!-- Beredskapsstatus og Brukerikon -->
-        <div class="d-flex align-items-center gap-2 border rounded-pill px-3 py-1 bg-light">
-            <i class="bi bi-shield-check text-primary"></i>
-            <span class="small fw-semibold text-secondary">Beredskapsnivå: Normal</span>
-            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold ms-2 shadow-sm" style="width: 35px; height: 35px; font-size: 14px; background-color: #0d6efd !important;">
-                DEMO
-            </div>
-        </div>
-    </div>
-</div>
-
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white-50" asp-area="" asp-controller="Home" asp-action="Privacy">Personvern</a>
                         </li>
                     </ul>
                 </div>

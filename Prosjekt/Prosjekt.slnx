@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Prosjekt.AppHost/Prosjekt.AppHost.csproj" />
   <Project Path="Prosjekt.ServiceDefaults/Prosjekt.ServiceDefaults.csproj" />
+  <Project Path="Prosjekt.Test/Prosjekt.Test.csproj" Id="10342d15-389f-4d57-b55f-5e2fca9dd7cb" />
   <Project Path="Prosjekt/Prosjekt.csproj" />
 </Solution>

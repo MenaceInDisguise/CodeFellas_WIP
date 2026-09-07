@@ -1,0 +1,57 @@
+﻿@model List<Prosjekt.Models.ModelView.PositionModel>
+
+<h2>Posisjon registrert</h2>
+
+<div class="row">
+    <!-- Venstre side: Boks satt til 450px med intern scrollbar om det blir mange elementer -->
+    <div class="col-md-4" style="max-height: 450px; overflow-y: auto;">
+        @foreach (var position in Model)
+        {
+            <div class="mb-3 p-2 border-bottom">
+                <p class="mb-1"><strong>Breddegrader:</strong> @position.Latitude</p>
+                <p class="mb-1"><strong>Breddegrader:</strong> @position.Longitude</p>
+                <p class="mb-1"><strong>Beskrivelse:</strong> @position.Description</p>
+            </div>
+        }
+    </div>
+
+    <!-- Høyre side: Kart satt til nøyaktig 450px -->
+    <div class="col-md-8">
+        <div id="map" style="height: 450px;"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var map = L.map('map').setView([58.1467, 7.9956], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var positions = @Json.Serialize(Model);
+
+        positions.forEach(function(position) {
+            // Endret fra position.Latitude til position.latitude (og longitude/description)
+            var lat = position.latitude || position.Latitude;
+            var lng = position.longitude || position.Longitude;
+            var desc = position.description || position.Description;
+            var safeDesc = L.Util.escapeHTML(String(desc ?? ""));
+
+            var marker = L.marker([lat, lng]).addTo(map);
+
+            var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    var address = data.display_name ? data.display_name : "Address not found";
+                    var safeAddress = L.Util.escapeHTML(String(address ?? ""));
+                    marker.bindPopup(`${safeDesc}<br>Address: ${safeAddress}`);
+                })
+                .catch(error => {
+                    console.error("Fetch feilet:", error);
+                    marker.bindPopup(`${safeDesc}<br>Address: Not available`);
+                });
+        });
+    </script>
+}

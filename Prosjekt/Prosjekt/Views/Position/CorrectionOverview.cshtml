@@ -35,6 +35,7 @@
             var lat = position.latitude || position.Latitude;
             var lng = position.longitude || position.Longitude;
             var desc = position.description || position.Description;
+            var safeDesc = L.Util.escapeHTML(String(desc ?? ""));
 
             var marker = L.marker([lat, lng]).addTo(map);
 
@@ -44,11 +45,12 @@
                 .then(response => response.json())
                 .then(data => {
                     var address = data.display_name ? data.display_name : "Address not found";
-                    marker.bindPopup(`${desc}<br>Address: ${address}`);
+                    var safeAddress = L.Util.escapeHTML(String(address ?? ""));
+                    marker.bindPopup(`${safeDesc}<br>Address: ${safeAddress}`);
                 })
                 .catch(error => {
                     console.error("Fetch feilet:", error);
-                    marker.bindPopup(`${desc}<br>Address: Not available`);
+                    marker.bindPopup(`${safeDesc}<br>Address: Not available`);
                 });
         });
     </script>

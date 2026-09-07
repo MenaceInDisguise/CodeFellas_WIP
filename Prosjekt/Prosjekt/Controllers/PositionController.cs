@@ -14,6 +14,7 @@ namespace Prosjekt.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult CorrectMap(PositionModel model)
         {
             if (ModelState.IsValid)

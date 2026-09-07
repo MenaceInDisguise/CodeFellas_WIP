@@ -1,5 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+<link rel="stylesheet" href="https://jsdelivr.net">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,6 +10,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Prosjekt.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://jsdelivr.net">
+
 </head>
 <body>
     <header class="sticky-top">
@@ -34,26 +38,30 @@
     <div class="container-fluid flex-grow-1 d-flex flex-column">
         <div class="row flex-grow-1">
             <!-- Venstremeny -->
-            <aside class="col-md-3 col-lg-2 border-end pe-3 mb-4 d-flex flex-column" style="min-height: calc(100vh - 160px);">
-                <ul class="nav nav-pills flex-column gap-2">
-                    <strong>Registrering</strong>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark border" asp-area="" asp-controller="Ressurs" asp-action="Index">Registrer ressurs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark border" asp-area="" asp-controller="Behov" asp-action="Index">Registrer Behov</a>
-                    </li>
-                    <strong>Kriseinformasjon</strong>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark border" asp-area="" asp-controller="Kriseinformasjon" asp-action="Index">Kriseinformasjon</a>
-                    </li>
-                </ul>
+        <aside class="col-md-3 col-lg-2 border-end pe-3 mb-4 d-flex flex-column" style="min-height: calc(100vh - 160px);">
+            <div class="nav flex-column nav-pills gap-1">
+                <!-- Min side -->
+                <a class="nav-link active d-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-person-workspace"></i> Min side
+                </a>
 
-                <!-- Innstillinger helt nederst uten boks -->
-                <div class="mt-auto">
-                    <a class="nav-link text-dark" asp-area="" asp-controller="Innstillinger" asp-action="Index"><strong>Innstillinger</strong></a>
-                </div>
-            </aside>
+                <!-- Registrer ressurs -->
+                <a class="nav-link text-dark d-flex align-items-center gap-2" asp-area="" asp-controller="Ressurs" asp-action="Registrer">
+                    <i class="bi bi-plus-circle"></i> Registrer ressurs
+                </a>
+
+                <!-- Kriseinformasjon -->
+                <a class="nav-link text-dark d-flex align-items-center gap-2" asp-area="" asp-controller="Kriseinformasjon" asp-action="Index">
+                    <i class="bi bi-exclamation-triangle"></i> Kriseinformasjon
+                </a>
+
+                <!-- Innstillinger -->
+                <a class="nav-link text-dark d-flex align-items-center gap-2" asp-area="" asp-controller="Innstillinger" asp-action="Index">
+                    <i class="bi bi-gear"></i> Innstillinger
+                </a>
+            </div>
+        </aside>
+
 
             <!-- Hovedinnhold -->
             <main role="main" class="col-md-9 col-lg-10 pb-3">
@@ -64,7 +72,8 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - Prosjekt - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        &copy; 2026 - Prosjekt - <a asp-area="" asp-controller="Home" asp-action="Personvern">Personvern</a>
+
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

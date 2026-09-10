@@ -2,7 +2,7 @@
 
 namespace Prosjekt.Models.ModelView
 {
-    public class PositionModel
+    public class PositionViewModel
     {
         public string Latitude { get; set; } = string.Empty;
         public string Longitude { get; set; } = string.Empty;

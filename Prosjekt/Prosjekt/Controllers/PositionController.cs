@@ -7,7 +7,7 @@ namespace Prosjekt.Controllers
     public class PositionController : Controller
     {
         private static readonly object PositionsLock = new();
-        private static readonly List<PositionModel> positions = new();
+        private static readonly List<PositionViewModel> positions = new();
 
         [HttpGet]
         public IActionResult CorrectMap()
@@ -17,14 +17,14 @@ namespace Prosjekt.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CorrectMap(PositionModel model)
+        public IActionResult CorrectMap(PositionViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            List<PositionModel> snapshot;
+            List<PositionViewModel> snapshot;
             lock (PositionsLock)
             {
                 positions.Add(model);

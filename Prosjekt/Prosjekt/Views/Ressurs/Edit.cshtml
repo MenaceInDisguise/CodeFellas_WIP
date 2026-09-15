@@ -2,29 +2,27 @@
 @model RessursViewModel
 
 @{
-    ViewData["Title"] = "Opprett Ressurs";
+    ViewData["Title"] = "Endre Ressurs";
 }
 
-<h1>Opprett Ressurs</h1>
+<h1>Endre Ressurs</h1>
 
-<form asp-controller="Ressurs" asp-action="Create" method="post" autocomplete="off">
+<form asp-controller="Ressurs" asp-action="Edit" method="post" autocomplete="off">
 
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" name="opprinneligNavn" value="@Model.Navn" />
 
     <div class="form-group mb-3">
         <label asp-for="Navn"></label>
         <input asp-for="Navn" class="form-control" />
     </div>
-
     <div class="form-group mb-3">
         <label asp-for="Beskrivelse"></label>
         <input asp-for="Beskrivelse" class="form-control" />
     </div>
-
     <div class="form-group mb-3">
         <label asp-for="Antall"></label>
         <input asp-for="Antall" type="number" class="form-control" />
     </div>
-
-    <button type="submit" class="btn btn-primary mt-2">Opprett ressurs</button>
+    <button type="submit" class="btn btn-primary">Lagre endringer</button>
+    <a asp-action="Oversikt" class="btn btn-secondary">Avbryt</a>
 </form>

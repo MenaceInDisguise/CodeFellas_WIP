@@ -18,6 +18,5 @@ namespace Prosjekt.Controllers
             }
             return View(model);
         }
-
     }
 }

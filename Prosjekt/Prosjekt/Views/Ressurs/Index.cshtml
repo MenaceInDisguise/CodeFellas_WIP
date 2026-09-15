@@ -1,24 +1,13 @@
 ﻿@using Prosjekt.Models.ModelView
 @model RessursViewModel
-
 @{
-    ViewData["Title"] = "Opprett ny ressurs";
+    ViewData["Title"] = "Ressurs Forside";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1>@Model.Navn</h1>
+<p>@Model.Beskrivelse</p>
+<p>Antall: @Model.Antall</p>
 
-<form asp-controller="Ressurs" asp-action="Create" method="post">
-    <div class="form-group">
-        <label asp-for="Navn"></label>
-        <input asp-for="Navn" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Beskrivelse"></label>
-        <input asp-for="Beskrivelse" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Antall"></label>
-        <input asp-for="Antall" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary mt-3">Lagre</button>
-</form>
+<hr />
+<!-- En knapp som tar brukeren videre til den ekte ordbok-oversikten -->
+<a asp-controller="RessursHandler" asp-action="Index" class="btn btn-primary">Gå til Ressurshåndtering)</a>

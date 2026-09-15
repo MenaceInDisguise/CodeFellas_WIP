@@ -1,0 +1,33 @@
+﻿@using Prosjekt.Models.ModelView
+@model RessursViewModel
+@{
+    ViewData["Title"] = "Ny Ressurs";
+}
+
+@if (Model == null)
+{
+    <form asp-controller="RessursHandler" asp-action="Create" method="post">
+        <div>
+            <label asp-for="Navn">Navn</label>
+            <input asp-for="Navn" />
+        </div>
+        <div>
+            <label asp-for="Beskrivelse">Beskrivelse</label>
+            <input asp-for="Beskrivelse" />
+        </div>
+        <div>
+            <label asp-for="Antall">Antall</label>
+            <input asp-for="Antall" type="number" />
+        </div>
+        <button type="submit">Create</button>
+    </form>
+}
+else
+{
+    <div>
+        Gratulerer du har opprettet en ny ressurs!
+        <h1>@Model.Navn</h1>
+        <p>@Model.Beskrivelse</p>
+        <p>Antall: @Model.Antall</p>
+    </div>
+}

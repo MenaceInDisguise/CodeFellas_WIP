@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Prosjekt.Models.ModelView;
 
 namespace Prosjekt.Controllers
 {
@@ -7,17 +6,14 @@ namespace Prosjekt.Controllers
     {
         public IActionResult Index()
         {
-            return View(new RessursViewModel());
-        }
-        [HttpPost]
-        public ActionResult Create(RessursViewModel model)
-        {
-            if (model.Navn == null || model.Beskrivelse == null || model.Antall <= 0)
+            var viewModel = new Models.ModelView.RessursViewModel
             {
-                throw new ArgumentException("Navn, beskrivelse eller antall kan ikke være null.");
-            }
-            return View(model);
-        }
+                Navn = "Traktor",
+                Beskrivelse = "Traktor med henger, parkert på åker og enger",
+                Antall = 1 // Siden din modell bruker et tall (int) i stedet for tekst ("Kjøretøy")
+            };
 
+            return View(viewModel);
+        }
     }
 }

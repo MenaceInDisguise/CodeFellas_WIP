@@ -10,12 +10,15 @@ namespace Prosjekt.Controllers
             return View(new BehovViewModel());
         }
         [HttpPost]
-        public ActionResult Create(BehovViewModel model)
-        {   
-            if (model.Navn == null || model.Beskrivelse == null || model.Totalt <= 0)
+        public IActionResult Create(BehovViewModel model)
+        {
+           
+            if (string.IsNullOrWhiteSpace(model.Navn) || string.IsNullOrWhiteSpace(model.Beskrivelse) || model.Totalt <= 0)
             {
-                throw new ArgumentException("Navn, beskrivelse eller antall kan ikke være null.");
+                ModelState.AddModelError("", "Alle felt må fylles ut gyldig.");
+                return View("Index", model);
             }
+
             return View(model);
         }
 

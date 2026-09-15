@@ -1,0 +1,18 @@
+﻿@using Prosjekt.Models.ModelView
+@model RessursViewModel
+
+@{
+    ViewData["Title"] = "Du har opprettet ny ressurs";
+}
+
+<h1>Du har opprettet ny ressurs</h1>
+<hr />
+
+<div class="card p-3 mb-3">
+    <p><strong>Navn:</strong> @Model.Navn</p>
+    <p><strong>Beskrivelse:</strong> @Model.Beskrivelse</p>
+    <p><strong>Antall:</strong> @Model.Antall</p>
+</div>
+
+<a asp-controller="Ressurs" asp-action="Index" class="btn btn-secondary">Opprett enda en ressurs</a>
+<a asp-controller="Ressurs" asp-action="Oversikt" class="btn btn-primary">Gå til oversikten</a>

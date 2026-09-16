@@ -23,35 +23,50 @@
 
 @section Scripts {
     <script>
+        var positions = @Json.Serialize(Model);
+
         var map = L.map('map').setView([58.1467, 7.9956], 12);
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var positions = @Json.Serialize(Model);
+        if (positions && positions.length > 0) {
+            var bounds = [];
 
-        positions.forEach(function(position) {
-            // Endret fra position.Latitude til position.latitude (og longitude/description)
-            var lat = position.latitude || position.Latitude;
-            var lng = position.longitude || position.Longitude;
-            var desc = position.description || position.Description;
-            var safeDesc = L.Util.escapeHTML(String(desc ?? ""));
+            positions.forEach(function(position) {
+                // Håndterer både camelCase/PascalCase og komma/punktum
+                var rawLat = String(position.latitude ?? position.Latitude ?? "").replace(',', '.');
+                var rawLng = String(position.longitude ?? position.Longitude ?? "").replace(',', '.');
 
-            var marker = L.marker([lat, lng]).addTo(map);
+                var lat = parseFloat(rawLat);
+                var lng = parseFloat(rawLng);
+                var desc = position.description ?? position.Description ?? "";
 
-            var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    // Tegn pinnen umiddelbart
+                    var marker = L.marker([lat, lng]).addTo(map);
+                    marker.bindPopup(`<b>${desc}</b>`);
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    var address = data.display_name ? data.display_name : "Address not found";
-                    var safeAddress = L.Util.escapeHTML(String(address ?? ""));
-                    marker.bindPopup(`${safeDesc}<br>Address: ${safeAddress}`);
-                })
-                .catch(error => {
-                    console.error("Fetch feilet:", error);
-                    marker.bindPopup(`${safeDesc}<br>Address: Not available`);
-                });
-        });
+                    bounds.push([lat, lng]);
+
+                    // Valgfritt: Hent adresse i bakgrunnen uten å stoppe koden
+                    var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.display_name) {
+                                marker.setPopupContent(`<b>${desc}</b><br>${data.display_name}`);
+                            }
+                        })
+                        .catch(err => console.log("Adressefeil:", err));
+                }
+            });
+
+            // Zoomer ut/inn slik at ALLE pinnene vises i bildet samtidig
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [40, 40] });
+            }
+        }
     </script>
 }

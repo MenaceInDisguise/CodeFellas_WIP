@@ -1,27 +1,86 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Mvc;
 using Prosjekt.Models.ModelView;
 
 namespace Prosjekt.Controllers
 {
     public class RessursController : Controller
     {
-        //Viser skjemaet for å registrere en ny ressurs.
+        private static readonly ConcurrentDictionary<string, RessursViewModel> _ressursDatabase = new(StringComparer.OrdinalIgnoreCase);
+
+        [HttpGet]
         public IActionResult Index()
         {
             return View(new RessursViewModel());
         }
+
         [HttpPost]
-        //Mottar informasjon fra ressursskjemaet og behandler den.
-        public ActionResult Create(RessursViewModel model)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(RessursViewModel model)
         {
-            //Kontrollerer at navn, beskrivelse og antall er gyldig.
-            if (model.Navn == null || model.Beskrivelse == null || model.Antall <= 0)
+            if (string.IsNullOrWhiteSpace(model.Navn) || string.IsNullOrWhiteSpace(model.Beskrivelse) || model.Antall <= 0)
             {
-                throw new ArgumentException("Navn, beskrivelse eller antall kan ikke være null.");
+                ModelState.AddModelError("", "Alle felt må fylles ut gyldig.");
+                return View("Index", model);
             }
-            //Sender den informasjonen videre til viewet.
+
+            _ressursDatabase[model.Navn] = model;
+
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult Oversikt()
+        {
+            var alleRessurser = _ressursDatabase.Values.ToList();
+            return View(alleRessurser);
+        }
+
+        [HttpGet]
+        public IActionResult Edit(string navn)
+        {
+            if (string.IsNullOrEmpty(navn) || !_ressursDatabase.TryGetValue(navn, out var ressurs))
+            {
+                return NotFound();
+            }
+
+            return View(ressurs);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(string opprinneligNavn, RessursViewModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Navn) || string.IsNullOrWhiteSpace(model.Beskrivelse) || model.Antall <= 0)
+            {
+                return View(model);
+            }
+
+            if (string.IsNullOrEmpty(opprinneligNavn))
+            {
+                return BadRequest();
+            }
+
+            if (!opprinneligNavn.Equals(model.Navn, StringComparison.OrdinalIgnoreCase))
+            {
+                _ressursDatabase.TryRemove(opprinneligNavn, out _);
+            }
+
+            _ressursDatabase[model.Navn] = model;
+
+            return RedirectToAction("Oversikt");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(string navn)
+        {
+            if (!string.IsNullOrEmpty(navn))
+            {
+                _ressursDatabase.TryRemove(navn, out _);
+            }
+
+            return RedirectToAction("Oversikt");
+        }
     }
 }

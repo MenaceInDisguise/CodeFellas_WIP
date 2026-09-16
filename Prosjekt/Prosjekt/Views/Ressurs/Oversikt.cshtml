@@ -1,0 +1,45 @@
+﻿@using Prosjekt.Models.ModelView
+@model List<RessursViewModel>
+
+@{
+    ViewData["Title"] = "Oversikt over ressurser";
+}
+
+<h1>Oversikt over ressurser</h1>
+
+<table class="table table-striped table-hover mt-3">
+    <thead>
+        <tr>
+            <th>Navn</th>
+            <th>Beskrivelse</th>
+            <th>Antall</th>
+            <th>Handlinger</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Navn</td>
+                    <td>@item.Beskrivelse</td>
+                    <td>@item.Antall</td>
+                    <td>
+                        <a asp-controller="Ressurs" asp-action="Edit" asp-route-navn="@item.Navn" class="btn btn-sm btn-warning">Rediger</a>
+
+                        <form asp-controller="Ressurs" asp-action="Delete" asp-route-navn="@item.Navn" method="post" style="display:inline;" onsubmit="return confirm('Er du sikker på at du vil slette @item.Navn?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Slett</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-muted">Ingen ressurser registrert ennå.</td>
+            </tr>
+        }
+    </tbody>
+</table>

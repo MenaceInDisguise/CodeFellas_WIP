@@ -26,18 +26,22 @@ namespace Prosjekt.Xunit
         }
 
         [Fact]
-        public void Create_InvalidModel_ThrowsArgumentException()
+        public void Create_InvalidModel_ReturnsViewResultWithModelError()
         {
             var controller = new BehovController();
 
             var model = new BehovViewModel
             {
-                Navn = "Test",
+                Navn = "",
                 Beskrivelse = "Testbeskrivelse",
-                Totalt = 0,
+                Totalt = 1
             };
 
-            Assert.Throws<ArgumentException>(() => controller.Create(model));
+            var result = controller.Create(model);
+
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.False(controller.ModelState.IsValid);
+            Assert.Equal("Index", viewResult.ViewName);
         }
     }
 }

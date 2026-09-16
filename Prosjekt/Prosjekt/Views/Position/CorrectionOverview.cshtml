@@ -1,72 +1,76 @@
 ﻿@model List<Prosjekt.Models.ModelView.PositionViewModel>
 
-<h2>Posisjon registrert</h2>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<h2>Oversikt over registrerte geografiske hendelser</h2>
 
 <div class="row">
-    <!-- Venstre side: Boks satt til 450px med intern scrollbar om det blir mange elementer -->
-    <div class="col-md-4" style="max-height: 450px; overflow-y: auto;">
-        @foreach (var position in Model)
-        {
-            <div class="mb-3 p-2 border-bottom">
-                <p class="mb-1"><strong>Breddegrader:</strong> @position.Latitude</p>
-                <p class="mb-1"><strong>Breddegrader:</strong> @position.Longitude</p>
-                <p class="mb-1"><strong>Beskrivelse:</strong> @position.Description</p>
-            </div>
-        }
+    <!-- Liste på venstre side -->
+    <div class="col-md-4">
+        <div class="list-group">
+            @foreach (var pos in Model)
+            {
+                <div class="list-group-item mb-2">
+                    <h5>@pos.Description</h5>
+                    <p class="mb-1"><strong>Breddegrad:</strong> @pos.Latitude</p>
+                    <p class="mb-1"><strong>Lengdegrad:</strong> @pos.Longitude</p>
+                    <p class="mb-0"><strong>Radius:</strong> @pos.Radius m</p>
+                </div>
+            }
+        </div>
     </div>
 
-    <!-- Høyre side: Kart satt til nøyaktig 450px -->
+    <!-- Kart på høyre side -->
     <div class="col-md-8">
-        <div id="map" style="height: 450px;"></div>
+        <div id="overviewMap" style="height: 500px; width: 100%;"></div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var positions = @Json.Serialize(Model);
-
-        var map = L.map('map').setView([58.1467, 7.9956], 12);
+        var map = L.map('overviewMap').setView([58.1467, 7.9956], 11);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        if (positions && positions.length > 0) {
-            var bounds = [];
+        var positions = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+        var bounds = [];
 
-            positions.forEach(function(position) {
-                // Håndterer både camelCase/PascalCase og komma/punktum
-                var rawLat = String(position.latitude ?? position.Latitude ?? "").replace(',', '.');
-                var rawLng = String(position.longitude ?? position.Longitude ?? "").replace(',', '.');
+        positions.forEach(function(pos) {
+            var lat = parseFloat(pos.Latitude);
+            var lng = parseFloat(pos.Longitude);
+            var radius = parseFloat(pos.Radius);
 
-                var lat = parseFloat(rawLat);
-                var lng = parseFloat(rawLng);
-                var desc = position.description ?? position.Description ?? "";
+            if (!isNaN(lat) && !isNaN(lng)) {
+                L.marker([lat, lng])
+                    .bindPopup(`<b>${pos.Description}</b><br>Radius: ${radius} m`)
+                    .addTo(map);
 
-                if (!isNaN(lat) && !isNaN(lng)) {
-                    // Tegn pinnen umiddelbart
-                    var marker = L.marker([lat, lng]).addTo(map);
-                    marker.bindPopup(`<b>${desc}</b>`);
+                L.circle([lat, lng], {
+                    radius: radius,
+                    color: '#3388ff',
+                    fillColor: '#3388ff',
+                    fillOpacity: 0.2
+                }).addTo(map);
 
-                    bounds.push([lat, lng]);
-
-                    // Valgfritt: Hent adresse i bakgrunnen uten å stoppe koden
-                    var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
-                    fetch(url)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data && data.display_name) {
-                                marker.setPopupContent(`<b>${desc}</b><br>${data.display_name}`);
-                            }
-                        })
-                        .catch(err => console.log("Adressefeil:", err));
-                }
-            });
-
-            // Zoomer ut/inn slik at ALLE pinnene vises i bildet samtidig
-            if (bounds.length > 0) {
-                map.fitBounds(bounds, { padding: [40, 40] });
+                bounds.push([lat, lng]);
             }
+        });
+
+        
+        if (bounds.length > 0) {
+            // maxZoom forhindrer at kartet zoomer altfor langt inn når det bare er 1 punkt
+            map.fitBounds(bounds, {
+                padding: [30, 30],
+                maxZoom: 13
+            });
         }
+
+        // Tvinger kartet til å beregne størrelsen på nytt dersom det blir rendret skjult
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 200);
     </script>
 }

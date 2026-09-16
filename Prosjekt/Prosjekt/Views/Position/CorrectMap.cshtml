@@ -1,6 +1,6 @@
 ﻿@model Prosjekt.Models.ModelView.PositionViewModel
 
-<h2>Registrer posisjon</h2>
+<h2>Registrer Geografiske Hendelser</h2>
 
 <div class="row">
     <!-- Skjema på venstre side -->
@@ -21,6 +21,11 @@
                 <textarea id="description" name="Description" class="form-control" rows="4" required></textarea>
             </div>
 
+            <div class="form-group">
+                <label for="radius">Radius (meter)</label>
+                <input type="number" id="radius" name="Radius" class="form-control" value="500" min="10" step="10" required />
+            </div>
+
             <button type="submit" class="btn btn-primary mt-2 w-100">Lagre</button>
         </form>
     </div>
@@ -39,19 +44,45 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var currentMarker; // Variabel for å holde styr på eksisterende markør
+        var currentMarker;
+        var currentCircle; // Variabel for å holde styr på sirkelen
+        var selectedLat, selectedLng;
+
+        function updateShape() {
+            if (!selectedLat || !selectedLng) return;
+
+            var radius = parseFloat(document.getElementById('radius').value) || 0;
+
+            // Fjern eksisterende markør og sirkel
+            if (currentMarker) map.removeLayer(currentMarker);
+            if (currentCircle) map.removeLayer(currentCircle);
+
+            // Legg til markør i sentrum
+            currentMarker = L.marker([selectedLat, selectedLng]).addTo(map);
+
+            // Tegn sirkelen med oppgitt radius (i meter)
+            currentCircle = L.circle([selectedLat, selectedLng], {
+                radius: radius,
+                color: '#3388ff',
+                fillColor: '#3388ff',
+                fillOpacity: 0.2
+            }).addTo(map);
+        }
+
+        // Klikk på kartet setter posisjon og tegner sirkel
         map.on('click', function(e) {
-            var lat = e.latlng.lat;
-            var lng = e.latlng.lng;
+            selectedLat = e.latlng.lat;
+            selectedLng = e.latlng.lng;
 
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
+            document.getElementById('latitude').value = selectedLat;
+            document.getElementById('longitude').value = selectedLng;
 
-            if (currentMarker) {
-                map.removeLayer(currentMarker);
-            }
+            updateShape();
+        });
 
-            currentMarker = L.marker([lat, lng]).addTo(map);
+        // Oppdater sirkelen umiddelbart når brukeren endrer radius-feltet
+        document.getElementById('radius').addEventListener('input', function() {
+            updateShape();
         });
     </script>
 }

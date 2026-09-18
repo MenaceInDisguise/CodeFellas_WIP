@@ -1,6 +1,11 @@
+using MySqlConnector;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddSingleton(new MySqlConnection(connectionString));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -31,3 +36,5 @@ app.MapControllerRoute(
 
 
 app.Run();
+
+

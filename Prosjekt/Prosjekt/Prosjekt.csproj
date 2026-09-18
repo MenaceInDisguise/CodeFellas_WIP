@@ -6,11 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>2d812f70-0317-4bb2-aace-45b8c4513330</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="leaflet" Version="0.7.3" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.24.1-preview.1" />
+    <PackageReference Include="MySqlConnector" Version="2.6.2" />
   </ItemGroup>
 
   <ItemGroup>

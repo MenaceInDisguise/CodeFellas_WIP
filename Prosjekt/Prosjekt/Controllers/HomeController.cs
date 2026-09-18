@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Prosjekt.Models;
 using Prosjekt.Models.ModelView;
+using MySqlConnector;
 
 namespace Prosjekt.Controllers;
 public class HomeController : Controller

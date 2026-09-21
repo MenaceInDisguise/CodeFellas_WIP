@@ -50,7 +50,6 @@
         }).addTo(map);
 
         var currentMarker;
-        var currentCircle; // Variabel for å holde styr på sirkelen
         var selectedLat, selectedLng;
 
         function updateShape() {
@@ -58,16 +57,15 @@
 
             // Fjern eksisterende markør og sirkel
             if (currentMarker) map.removeLayer(currentMarker);
-            if (currentCircle) map.removeLayer(currentCircle);
 
             // Legg til markør i sentrum
             currentMarker = L.marker([selectedLat, selectedLng]).addTo(map);
         }
 
-        // Klikk på kartet setter posisjon og tegner sirkel
+        // Klikk på kartet setter posisjon
         map.on('click', function(e) {
-            selectedLat = e.latlng.lat;
-            selectedLng = e.latlng.lng;
+            selectedLat = e.latlng.lat.toFixed(6);
+            selectedLng = e.latlng.lng.toFixed(6);
 
             document.getElementById('Latitude').value = selectedLat;
             document.getElementById('Longitude').value = selectedLng;

@@ -6,25 +6,76 @@
 }
 
 <h1>Opprett Ressurs</h1>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Ressurs" asp-action="Create" method="post" autocomplete="off">
 
-<form asp-controller="Ressurs" asp-action="Create" method="post" autocomplete="off">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-3">
+                <label asp-for="Navn"></label>
+                <input asp-for="Navn" class="form-control" />
+            </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="Navn"></label>
-        <input asp-for="Navn" class="form-control" />
+            <div class="form-group mb-3">
+                <label asp-for="Beskrivelse"></label>
+                <input asp-for="Beskrivelse" class="form-control" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Antall"></label>
+                <input asp-for="Antall" type="number" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Latitude"></label>
+                <input asp-for="Latitude" class="form-control" readonly />
+            </div>
+            <div>
+                <label asp-for="Longitude"></label>
+                <input asp-for="Longitude" class="form-control" readonly />
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-2">Opprett ressurs</button>
+        </form>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="Beskrivelse"></label>
-        <input asp-for="Beskrivelse" class="form-control" />
-    </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="Antall"></label>
-        <input asp-for="Antall" type="number" class="form-control" />
+    <div class="col-md-8">
+        <div id="map" style="height: 450px;"></div>
     </div>
+</div>
 
-    <button type="submit" class="btn btn-primary mt-2">Opprett ressurs</button>
-</form>
+
+@section Scripts {
+    <script>
+        var map = L.map('map').setView([58.1467, 7.9956], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var currentMarker;
+        var selectedLat, selectedLng;
+
+        function updateShape() {
+            if (!selectedLat || !selectedLng) return;
+
+            // Fjern eksisterende markør og sirkel
+            if (currentMarker) map.removeLayer(currentMarker);
+
+            // Legg til markør i sentrum
+            currentMarker = L.marker([selectedLat, selectedLng]).addTo(map);
+        }
+
+        // Klikk på kartet setter posisjon
+        map.on('click', function(e) {
+            selectedLat = e.latlng.lat.toFixed(6);
+            selectedLng = e.latlng.lng.toFixed(6);
+
+            document.getElementById('Latitude').value = selectedLat;
+            document.getElementById('Longitude').value = selectedLng;
+
+            updateShape();
+        });
+    </script>
+}

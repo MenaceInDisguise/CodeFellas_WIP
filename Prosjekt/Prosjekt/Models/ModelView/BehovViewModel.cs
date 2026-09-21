@@ -10,5 +10,8 @@ namespace Prosjekt.Models.ModelView
         public string Beskrivelse { get; set; } = string.Empty;
         //Antall som trengs av ressursen/behovet.
         public int Totalt { get; set; } = 0;
+
+        public string Longitude { get; set; } = string.Empty;
+        public string Latitude { get; set; } = string.Empty;
     }
 }

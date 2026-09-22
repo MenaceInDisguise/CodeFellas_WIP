@@ -30,7 +30,14 @@ namespace Prosjekt.Xunit.Test.ControllerTest
         public void Create_ValidModel_ReturnsViewResult()
         {
             // Arrange
-            var model = new RessursViewModel { Navn = "Test", Beskrivelse = "Test", Antall = 1 };
+            var model = new RessursViewModel 
+            { 
+                Navn = "Test", 
+                Beskrivelse = "Test", 
+                Antall = 1,
+                Latitude = "58.146700",
+                Longitude = "7.995600"
+            };
 
             // Act
             var result = _controller.Create(model);

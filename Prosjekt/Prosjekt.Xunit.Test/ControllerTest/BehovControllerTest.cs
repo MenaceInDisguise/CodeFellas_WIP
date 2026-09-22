@@ -34,7 +34,9 @@ namespace Prosjekt.Xunit
             {
                 Navn = "",
                 Beskrivelse = "Testbeskrivelse",
-                Totalt = 1
+                Totalt = 1,
+                Latitude = "58.146700",
+                Longitude = "7.995600"
             };
 
             var result = controller.Create(model);

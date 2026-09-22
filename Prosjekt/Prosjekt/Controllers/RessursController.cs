@@ -1,6 +1,7 @@
-﻿using System.Collections.Concurrent;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Prosjekt.Models.ModelView;
+using System.Collections.Concurrent;
+using System.Globalization;
 
 namespace Prosjekt.Controllers
 {
@@ -24,9 +25,37 @@ namespace Prosjekt.Controllers
                 return View("Index", model);
             }
 
+            if (string.IsNullOrWhiteSpace(model.Latitude) || string.IsNullOrWhiteSpace(model.Longitude))
+            {
+                ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("Index", model);
+            }
+
             _ressursDatabase[model.Navn] = model;
 
             return View(model);
+        }
+
+        private static bool ErGyldigPosisjon(string latitude, string longitude)
+        {
+            return decimal.TryParse(
+                       latitude,
+                       NumberStyles.Float,
+                       CultureInfo.InvariantCulture,
+                       out var lat) &&
+                   decimal.TryParse(
+                       longitude,
+                       NumberStyles.Float,
+                       CultureInfo.InvariantCulture,
+                       out var lon) &&
+                   lat >= -90 &&
+                   lat <= 90 &&
+                   lon >= -180 &&
+                   lon <= 180;
         }
 
         [HttpGet]
@@ -66,6 +95,17 @@ namespace Prosjekt.Controllers
                 _ressursDatabase.TryRemove(opprinneligNavn, out _);
             }
 
+            //Validerer koordinater etter endring
+            if (!ErGyldigPosisjon(model.Latitude, model.Longitude))
+            {
+                ModelState.AddModelError("", "Du må velge en gyldig posisjon.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             _ressursDatabase[model.Navn] = model;
 
             return RedirectToAction("Oversikt");
@@ -82,5 +122,7 @@ namespace Prosjekt.Controllers
 
             return RedirectToAction("Oversikt");
         }
+
+
     }
 }

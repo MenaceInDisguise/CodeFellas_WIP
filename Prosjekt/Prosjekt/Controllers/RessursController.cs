@@ -26,6 +26,16 @@ namespace Prosjekt.Controllers
 
             _ressursDatabase[model.Navn] = model;
 
+            if (string.IsNullOrWhiteSpace(model.Latitude) || string.IsNullOrWhiteSpace(model.Longitude))
+            {
+                ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("Index", model);
+            }
+
             return View(model);
         }
 

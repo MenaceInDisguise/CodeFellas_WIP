@@ -20,6 +20,15 @@ namespace Prosjekt.Controllers
                 ModelState.AddModelError("", "Alle felt må fylles ut gyldig.");
                 return View("Index", model);
             }
+            if (string.IsNullOrWhiteSpace(model.Latitude) || string.IsNullOrWhiteSpace(model.Longitude))
+            {
+                ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("Index", model);
+            }
             return View(model);
         }
     }

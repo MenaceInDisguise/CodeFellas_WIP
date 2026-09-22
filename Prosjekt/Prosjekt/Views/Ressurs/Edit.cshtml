@@ -11,6 +11,9 @@
 
     <input type="hidden" name="opprinneligNavn" value="@Model.Navn" />
 
+    <input asp-for="Latitude" type="hidden" />
+    <input asp-for="Longitude" type="hidden" />
+
     <div class="form-group mb-3">
         <label asp-for="Navn"></label>
         <input asp-for="Navn" class="form-control" />

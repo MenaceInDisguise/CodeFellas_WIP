@@ -72,7 +72,7 @@
             if (isNaN(lat) || isNaN(lng)) return;
 
             L.marker([lat, lng])
-                .bindPopup('<b>${r.Navn}</b><br>Antall: ${r.Antall}')
+                .bindTooltip(`<b>${r.Navn}</b><br>Antall: ${r.Antall}`)
                 .addTo(kart);
 
             bounds.push([lat, lng]);

@@ -2,13 +2,61 @@
 @model BehovViewModel
 
 @{
-	ViewData["Title"] = "Nytt behov opprettet";
+    ViewData["Title"] = "Nytt behov opprettet";
+}
+@functions {
+    string Farge(Viktighet v) => v switch
+    {
+        Viktighet.Høy => "#dc3545",
+        Viktighet.Middels => "#fd7e14",
+        _ => "#ffc107"
+    };
 }
 
+<h1>Nytt behov opprettet</h1>
+<hr />
 
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="card p-3 h-100">
+            <p><strong>Navn:</strong> @Model.Navn</p>
+            <p><strong>Beskrivelse:</strong> @Model.Beskrivelse</p>
+            <p><strong>Antall som trengs:</strong> @Model.Totalt</p>
+            <p>
+                <strong>Viktighet:</strong>
+                <span class="badge" style="@($"background-color: {Farge(Model.Viktighet)}")">@Model.Viktighet</span>
+            </p>
+            <p class="mb-0"><strong>Posisjon:</strong> @Model.Latitude, @Model.Longitude</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div id="kvitteringBehovKart" style="height: 280px;"></div>
+    </div>
+</div>
 
-<h1><strong>Nytt behov opprettet</strong></h1>
-<p><strong>Navn:</strong> @Model.Navn</p>
-<p><strong>Beskrivelse:</strong> @Model.Beskrivelse</p>
-<p><strong>Antall:</strong> @Model.Totalt</p>
-<p><strong>Posisjon:</strong> @Model.Latitude, @Model.Longitude</p>
+<a asp-controller="Behov" asp-action="Index" class="btn btn-secondary">Opprett enda et behov</a>
+<a asp-controller="Behov" asp-action="Oversikt" class="btn btn-primary">Gå til oversikten</a>
+
+@section Scripts {
+    <script>
+        var lat = parseFloat('@Model.Latitude');
+        var lng = parseFloat('@Model.Longitude');
+        var farge = '@Farge(Model.Viktighet)';
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+            var kart = L.map('kvitteringBehovKart').setView([lat, lng], 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(kart);
+
+            L.circleMarker([lat, lng], {
+                radius: 9,
+                color: '#333',
+                weight: 1,
+                fillColor: farge,
+                fillOpacity: 0.9
+            }).addTo(kart);
+        }
+    </script>
+}

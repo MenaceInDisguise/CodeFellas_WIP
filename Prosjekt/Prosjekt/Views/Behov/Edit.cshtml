@@ -1,5 +1,86 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using Prosjekt.Models.ModelView
+@model BehovViewModel
+
 @{
+    ViewData["Title"] = "Endre Behov";
+}
+
+<h1>Endre Behov</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-controller="Behov" asp-action="Edit" method="post" autocomplete="off">
+
+            <input type="hidden" name="opprinneligNavn" value="@Model.Navn" />
+
+            <input asp-for="Latitude" type="hidden" />
+            <input asp-for="Longitude" type="hidden" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Navn"></label>
+                <input asp-for="Navn" class="form-control" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Beskrivelse"></label>
+                <input asp-for="Beskrivelse" class="form-control" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Totalt"></label>
+                <input asp-for="Totalt" type="number" class="form-control" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Viktighet"></label>
+                <select asp-for="Viktighet" asp-items="Html.GetEnumSelectList<Viktighet>()" class="form-select"></select>
+            </div>
+            <button type="submit" class="btn btn-primary">Lagre endringer</button>
+            <a asp-action="Oversikt" class="btn btn-secondary">Avbryt</a>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <div id="redigerKart" style="height: 250px;"></div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        var lat = parseFloat('@Model.Latitude');
+        var lng = parseFloat('@Model.Longitude');
+
+        var harPosisjon = !isNaN(lat) && !isNaN(lng);
+        var startPunkt = harPosisjon ? [lat, lng] : [58.1467, 7.9956];
+
+        var kart = L.map('redigerKart').setView(startPunkt, harPosisjon ? 14 : 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(kart);
+
+        var markor;
+        var selectedLat, selectedLng;
+
+        function updateMarkor() {
+            if (!selectedLat || !selectedLng) return;
+
+            // Fjern eksisterende markør
+            if (markor) kart.removeLayer(markor);
+
+            // Legg til markør i sentrum
+            markor = L.marker([selectedLat, selectedLng]).addTo(kart);
+        }
+
+        if (harPosisjon) {
+            markor = L.marker(startPunkt).addTo(kart);
+        }
+        kart.on('click', function(e) {
+            selectedLat = e.latlng.lat.toFixed(6);
+            selectedLng = e.latlng.lng.toFixed(6);
+
+            document.getElementById('Latitude').value = selectedLat;
+            document.getElementById('Longitude').value = selectedLng;
+
+            updateMarkor();
+        });
+
+    </script>
 }

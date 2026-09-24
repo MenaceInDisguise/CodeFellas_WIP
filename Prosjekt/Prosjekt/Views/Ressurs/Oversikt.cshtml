@@ -56,7 +56,6 @@
 @section Scripts {
     <script>
         var ressurser = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
-        console.log(ressurser);
 
         var kart = L.map('oversiktKart').setView([58.1467,7.9956], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -82,6 +81,5 @@
         {
             kart.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
         }
-    // fitBounds hvis bounds.length > length > 0;
     </script>
 }

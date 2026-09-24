@@ -25,6 +25,10 @@
                 <input asp-for="Totalt" class="form-control" />
             </div>
             <div class="form-group">
+                <label asp-for="Viktighet"></label>
+                <select asp-for="Viktighet" asp-items="Html.GetEnumSelectList<Viktighet>()" class="form-select"></select>
+            </div>
+            <div class="form-group">
                 <label asp-for="Latitude"></label>
                 <input asp-for="Latitude" class="form-control" readonly/>
             </div>

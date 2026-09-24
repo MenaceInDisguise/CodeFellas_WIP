@@ -15,6 +15,10 @@ namespace Prosjekt.Models.ModelView
         //Antall som trengs av ressursen/behovet.
         public int Totalt { get; set; } = 0;
 
+        //Hvor akutt behovet er
+        [Display(Name = "Viktighet")]
+        public Viktighet Viktighet { get; set; } = Viktighet.Lav;
+
         //Breddegraden til posisjonen.
         [Display(Name = "Breddegrad")]
         public string Latitude { get; set; } = string.Empty;

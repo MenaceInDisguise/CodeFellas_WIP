@@ -9,6 +9,7 @@
         public string Beskrivelse { get; set; } = string.Empty;
         //Antall som er tilgjengelig av ressursen.
         public int Antall { get; set; } = 0;
+        // Geografisk posisjon (latitude og longitude) for ressursen.
         public string Latitude { get; set; } = string.Empty;
         public string Longitude { get; set; } = string.Empty;
     }

@@ -12,10 +12,12 @@ namespace Prosjekt.Controllers
         {
             return View(new BehovViewModel());
         }
-        
+
+        // Håndterer POST-forespørselen for å opprette et nytt behov.
         [HttpPost]
         public IActionResult Create(BehovViewModel model)
         {
+            // Validerer om alle nødvendige felt er fylt ut og om posisjonen er gyldig.
             if (string.IsNullOrWhiteSpace(model.Navn) || string.IsNullOrWhiteSpace(model.Beskrivelse) || model.Totalt <= 0)
             {
                 ModelState.AddModelError("", "Alle felt må fylles ut gyldig.");
@@ -32,6 +34,8 @@ namespace Prosjekt.Controllers
             }
             return View(model);
         }
+
+        // Validerer om posisjonen (latitude og longitude) er gyldig.
         private static bool ErGyldigPosisjon(string latitude, string longitude)
         {
             return decimal.TryParse(

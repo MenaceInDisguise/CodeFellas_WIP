@@ -61,5 +61,63 @@ namespace Prosjekt.Controllers
                    lon >= -180 &&
                    lon <= 180;
         }
+
+        [HttpGet]
+        public IActionResult Edit(string navn)
+        {
+            if (string.IsNullOrEmpty(navn) || !_behovDatabase.TryGetValue(navn, out var behov))
+            {
+                return NotFound();
+            }
+
+            return View(behov);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(string opprinneligNavn, BehovViewModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Navn) || string.IsNullOrWhiteSpace(model.Beskrivelse) || model.Totalt <= 0)
+            {
+                return View(model);
+            }
+
+            if (string.IsNullOrEmpty(opprinneligNavn))
+            {
+                return BadRequest();
+            }
+
+            if (!opprinneligNavn.Equals(model.Navn, StringComparison.OrdinalIgnoreCase))
+            {
+                _behovDatabase.TryRemove(opprinneligNavn, out _);
+            }
+
+            //Validerer koordinater etter endring
+            if (!ErGyldigPosisjon(model.Latitude, model.Longitude))
+            {
+                ModelState.AddModelError("", "Du må velge en gyldig posisjon.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            _behovDatabase[model.Navn] = model;
+
+            return RedirectToAction("Oversikt");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(string navn)
+        {
+            if (!string.IsNullOrEmpty(navn))
+            {
+                _behovDatabase.TryRemove(navn, out _);
+            }
+
+            return RedirectToAction("Oversikt");
+        }
     }
 }

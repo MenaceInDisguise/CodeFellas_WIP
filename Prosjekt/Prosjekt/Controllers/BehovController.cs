@@ -19,6 +19,7 @@ namespace Prosjekt.Controllers
         [HttpPost]
         public IActionResult Create(BehovViewModel model)
         {
+            // Validerer om alle nødvendige felt er fylt ut og om posisjonen er gyldig.
             if (string.IsNullOrWhiteSpace(model.Navn) || string.IsNullOrWhiteSpace(model.Beskrivelse) || model.Totalt <= 0)
             {
                 ModelState.AddModelError("", "Alle felt må fylles ut gyldig.");

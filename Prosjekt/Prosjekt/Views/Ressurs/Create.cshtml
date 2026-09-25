@@ -7,13 +7,38 @@
 
 <h1>Du har opprettet ny ressurs</h1>
 <hr />
-
-<div class="card p-3 mb-3">
-    <p><strong>Navn:</strong> @Model.Navn</p>
-    <p><strong>Beskrivelse:</strong> @Model.Beskrivelse</p>
-    <p><strong>Antall:</strong> @Model.Antall</p>
-    <p><strong>Posisjon:</strong> @Model.Latitude, @Model.Longitude</p>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="card p-3 mb-3">
+            <p><strong>Navn:</strong> @Model.Navn</p>
+            <p><strong>Beskrivelse:</strong> @Model.Beskrivelse</p>
+            <p><strong>Antall:</strong> @Model.Antall</p>
+            <p><strong>Posisjon:</strong> @Model.Latitude, @Model.Longitude</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div id="kvitteringKart" style="height: 250px;"></div>
+    </div>
 </div>
 
 <a asp-controller="Ressurs" asp-action="Index" class="btn btn-secondary">Opprett enda en ressurs</a>
 <a asp-controller="Ressurs" asp-action="Oversikt" class="btn btn-primary">Gå til oversikten</a>
+
+@section Scripts 
+{
+    <script>
+        var lat = parseFloat('@Model.Latitude');
+        var lng = parseFloat('@Model.Longitude');
+
+        var kart = L.map('kvitteringKart').setView([lat, lng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(kart);
+
+        L.marker([lat, lng]).addTo(kart);
+
+    </script>
+    
+    
+}

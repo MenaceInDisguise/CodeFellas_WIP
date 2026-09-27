@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Nytt behov opprettet";
 }
+@* Farge per viktighet – må holdes lik Farge() i Oversikt.cshtml *@
 @functions {
     string Farge(Viktighet v) => v switch
     {
@@ -41,6 +42,7 @@
     <script>
         var lat = parseFloat('@Model.Latitude');
         var lng = parseFloat('@Model.Longitude');
+        // Kvitteringskart som viser det nye behovet, farget etter viktighet
         var farge = '@Farge(Model.Viktighet)';
 
         if (!isNaN(lat) && !isNaN(lng)) {

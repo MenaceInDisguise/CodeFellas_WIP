@@ -11,8 +11,10 @@
     <div class="col-md-6">
         <form asp-controller="Behov" asp-action="Edit" method="post" autocomplete="off">
 
+            @* Navnet er ID-en i controlleren; det opprinnelige sendes med i tilfelle brukeren endrer navnet *@
             <input type="hidden" name="opprinneligNavn" value="@Model.Navn" />
 
+            @* Skjulte koordinater som oppdateres når brukeren klikker ny posisjon i kartet *@
             <input asp-for="Latitude" type="hidden" />
             <input asp-for="Longitude" type="hidden" />
 
@@ -48,6 +50,7 @@
         var lng = parseFloat('@Model.Longitude');
 
         var harPosisjon = !isNaN(lat) && !isNaN(lng);
+        // Mangler lagret posisjon, starter kartet over Kristiansand
         var startPunkt = harPosisjon ? [lat, lng] : [58.1467, 7.9956];
 
         var kart = L.map('redigerKart').setView(startPunkt, harPosisjon ? 14 : 12);

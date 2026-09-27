@@ -28,6 +28,7 @@
                 <label asp-for="Viktighet"></label>
                 <select asp-for="Viktighet" asp-items="Html.GetEnumSelectList<Viktighet>()" class="form-select"></select>
             </div>
+            @* Koordinatene er skrivebeskyttet og fylles inn ved klikk i kartet *@
             <div class="form-group">
                 <label asp-for="Latitude"></label>
                 <input asp-for="Latitude" class="form-control" readonly/>
@@ -47,6 +48,7 @@
 
 @section Scripts {
     <script>
+        // Startposisjon: Kristiansand
         var map = L.map('map').setView([58.1467, 7.9956], 12);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -59,7 +61,7 @@
         function updateShape() {
             if (!selectedLat || !selectedLng) return;
 
-            // Fjern eksisterende markør og sirkel
+            // Fjern eksisterende markør
             if (currentMarker) map.removeLayer(currentMarker);
 
             // Legg til markør i sentrum

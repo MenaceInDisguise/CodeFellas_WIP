@@ -55,6 +55,7 @@
 
 @section Scripts {
     <script>
+        // Ressursene sendes til JavaScript som JSON for å tegnes i kartet
         var ressurser = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
 
         var kart = L.map('oversiktKart').setView([58.1467,7.9956], 11);
@@ -77,6 +78,7 @@
             bounds.push([lat, lng]);
         });
 
+        // Zoomer kartet slik at alle punktene vises
         if (bounds.length > 0) 
         {
             kart.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });

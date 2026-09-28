@@ -67,6 +67,7 @@
 
 @section Scripts {
     <script>
+        // Behovene sendes til JavaScript som JSON for å tegnes i kartet
         var behov = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
 
         var kart = L.map('oversiktBehovKart').setView([58.1467, 7.9956], 11);
@@ -76,6 +77,7 @@
 
         var bounds = [];
 
+        // Samme farger som Farge() over. Viktighet serialiseres som tall: 0 = Lav, 1 = Middels, 2 = Høy
         var fargeFor = { 0: '#ffc107', 1: '#fd7e14', 2: '#dc3545'};
 
         behov.forEach(function(b) {
@@ -97,6 +99,7 @@
             bounds.push([lat, lng]);
         });
 
+        // Zoomer kartet slik at alle punktene vises
         if (bounds.length > 0) {
             kart.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
         }

@@ -1,5 +1,6 @@
 ﻿@model List<Prosjekt.Models.ModelView.PositionViewModel>
 
+@* Leaflet lastes allerede i _Layout – denne og script-taggen under laster det på nytt *@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <h2>Oversikt over registrerte geografiske hendelser</h2>
@@ -35,6 +36,7 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
+        // Hendelsene sendes til JavaScript som JSON for å tegnes i kartet
         var positions = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
         var bounds = [];
 

@@ -7,7 +7,8 @@ builder.AddServiceDefaults();
 // 1. Hent tilkoblingsstrengen fra Aspire (sjekker 'mysql' først, deretter 'mariadbcontainer', og fallback)
 var connectionString = builder.Configuration.GetConnectionString("mysql")
     ?? builder.Configuration.GetConnectionString("mariadbcontainer")
-    ?? "server=mariadbcontainer;port=3306;database=mysql;user=root;password=Gruppe12!";
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Missing database connection string.");
 
 // 2. Registrer MySqlConnection slik at nye instanser opprettes riktig i kontrollerne
 builder.Services.AddTransient<MySqlConnection>(_ => new MySqlConnection(connectionString));

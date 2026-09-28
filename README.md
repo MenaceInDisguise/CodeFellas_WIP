@@ -49,3 +49,9 @@
   | Registrere hendelse på kart | Vises med markør og radius |
   | Tomme felt på kartskjema | Nettleseren stopper innsending selv |
   | Ukjent URL | Tom 404-side |
+
+
+Bruk av KI
+
+Vi har brukt KI som et hjelpemiddel gjennom programmeringsprosessen. KI har blant annet blitt brukt til å forklare kode og feilmeldinger, finne og rette feil, foreslå løsninger og hjelp med implementering av funksjonalitet.
+KI har blitt brukt som et støtteverktøy, mens vi selv har vurdert, tilpasset og implementert løsningene i prosjektet.

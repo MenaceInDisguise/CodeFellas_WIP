@@ -4,8 +4,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddSingleton(new MySqlConnection(connectionString));
+// 1. Hent tilkoblingsstrengen fra Aspire (sjekker 'mysql' først, deretter 'mariadbcontainer', og fallback)
+var connectionString = builder.Configuration.GetConnectionString("mysql")
+    ?? builder.Configuration.GetConnectionString("mariadbcontainer")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Missing database connection string.");
+
+// 2. Registrer MySqlConnection slik at nye instanser opprettes riktig i kontrollerne
+builder.Services.AddTransient<MySqlConnection>(_ => new MySqlConnection(connectionString));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -24,7 +30,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -34,7 +39,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-
 app.Run();
-
-

@@ -1,7 +1,7 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 // 1. Definer MariaDB-containeren med eksplisitt bilde, root-passord og databasen "mysql"
-var mariadb = builder.AddMySql("mariadbcontainer", password: builder.AddParameter("password", "Gruppe12!"))
+var mariadb = builder.AddMySql("mariadbcontainer", password: builder.AddParameter("password", secret: true))
                      .WithImage("mariadb", "latest");
 
 var mysqlDb = mariadb.AddDatabase("mysql");

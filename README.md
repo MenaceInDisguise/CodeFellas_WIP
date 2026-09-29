@@ -1,8 +1,13 @@
 # Prosjekt Kartverket/Heimevernet
-  Prosjekt/løsning laget av gruppe 12/15
+  Prosjekt/løsning laget av gruppe 12
 
   ### Gruppen består av:
-  Aryan - Emil - Andreas - Bjørn Tore - Sigve - Leart
+  Emil Rode - emilro@uia.no
+  Andreas Hjort - andreasnh@uia.no
+  Sigve Sørensen - sigves@uia.no
+  Leart Hasanaj - learth@uia.no
+  Aryan Sarvarsen - aryans@uia.no
+  Bjørn Tore Busk - bjorntb@uia.no
 
   ## Systemarkitektur
 
@@ -24,7 +29,7 @@
 
   Du trenger Docker Desktop oppe for at databasen skal starte.
 
-  Første gang må du sette et passord til databasen:
+  Første gang må du sette et passord til databasen: **Gruppe12!**
   ```
   dotnet user-secrets set Parameters:password <passord> --project Prosjekt/Prosjekt.AppHost
   ```

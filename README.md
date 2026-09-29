@@ -2,11 +2,11 @@
   Prosjekt/løsning laget av gruppe 12
 
   ### Gruppen består av:
-  Emil Rode - emilro@uia.no
-  Andreas Hjort - andreasnh@uia.no
-  Sigve Sørensen - sigves@uia.no
-  Leart Hasanaj - learth@uia.no
-  Aryan Sarvarsen - aryans@uia.no
+  Emil Rode - emilro@uia.no,
+  Andreas Hjort - andreasnh@uia.no,
+  Sigve Sørensen - sigves@uia.no,
+  Leart Hasanaj - learth@uia.no,
+  Aryan Sarvarsen - aryans@uia.no,
   Bjørn Tore Busk - bjorntb@uia.no
 
   ## Systemarkitektur

@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Logg inn";
+    // Skjuler venstremenyen og toppmenyen på selve innloggingsskjermen hvis ønskelig
+    Layout = "_Layout";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-5">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-dark text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold">Totalforsvaret</h4>
+                    <small class="text-white-50">Portal for kriseberedskap</small>
+                </div>
+                <div class="card-body p-4">
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger py-2 mb-3" role="alert">
+                            @ViewBag.Error
+                        </div>
+                    }
+
+                    <form method="post" asp-controller="Account" asp-action="Login">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Navn eller E-post</label>
+                            <input type="text" name="username" class="form-control form-control-lg" placeholder="f.eks. Ola Nordmann" required autofocus />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Passord</label>
+                            <input type="password" name="password" class="form-control form-control-lg" placeholder="••••••••" required />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Velg rolle for innlogging</label>
+                            <select name="role" class="form-select form-select-lg">
+                                <option value="Leverandor">Ressursleverandør (Privatperson / Bedrift)</option>
+                                <option value="Offentlig">Offentlig aktør (Kriseledelse / Beredskap)</option>
+                            </select>
+                            <div class="form-text">Bestemmer hvilke sider og funksjoner du får tilgang til.</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm">
+                            Logg inn
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center text-muted small py-3">
+                    Beredskapsportal Agder &copy; 2026
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

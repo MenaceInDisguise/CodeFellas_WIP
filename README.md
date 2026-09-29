@@ -1,5 +1,6 @@
 # Prosjekt Kartverket/Heimevernet
-  Prosjekt/løsning laget av gruppe 12
+  Kriseportal for Heimvernet. ASP.NET Core MVC (.NET 10) med .NET Aspire, Leaflet-kart for registrering av ressurser, behov og hendelser, og MariaDB i Docker. 
+  Et studentprosjekt ved UIA.
 
   ### Gruppen består av:
   Emil Rode - emilro@uia.no,

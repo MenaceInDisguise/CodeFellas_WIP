@@ -74,6 +74,8 @@ namespace Prosjekt.Controllers
                 {
                     case RessursViewModel.RessursType.Kjøretøy:
                         string skilt = Request.Form[$"RessursListe[{i}].Skiltnummer"].ToString();
+                        string kjøretøyTypeStr = Request.Form[$"RessursListe[{i}].KjøretøyType"].ToString();
+                        Enum.TryParse<KjøretøyViewModel.KjøretøyType>(kjøretøyTypeStr, out var kjøretøyType);
                         ressursSomSkalLagres = new KjøretøyViewModel
                         {
                             Navn = baseressurs.Navn,
@@ -82,7 +84,8 @@ namespace Prosjekt.Controllers
                             Latitude = baseressurs.Latitude,
                             Longitude = baseressurs.Longitude,
                             Kategori = baseressurs.Kategori,
-                            Skiltnummer = skilt
+                            Skiltnummer = skilt,
+                            Type = kjøretøyType
                         };
                         break;
 

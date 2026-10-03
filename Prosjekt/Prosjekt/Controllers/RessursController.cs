@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Prosjekt.Models.ModelView;
+using Prosjekt.Models.ModelView.RessursType;
 using System.Collections.Concurrent;
 using System.Globalization;
 
@@ -23,28 +24,36 @@ namespace Prosjekt.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View(new RessursViewModel());
+            return View(new RessursOppretterViewModel());
         }
 
         // Tar imot skjemaet fra Index. Ved feil vises skjemaet på nytt med brukerens
         // utfylte verdier; ved suksess lagres ressursen og en bekreftelsesside (Create-viewet) vises.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(RessursViewModel model)
+        public IActionResult Create(RessursOppretterViewModel model)
         {
-            // Obligatoriske felt: navn, beskrivelse og et positivt antall.
-            if (string.IsNullOrWhiteSpace(model.Navn) || string.IsNullOrWhiteSpace(model.Beskrivelse) || model.Antall <= 0)
-            {
-                ModelState.AddModelError("", "Alle felt må fylles ut gyldig.");
-                return View("Index", model);
-            }
-
-            // Latitude/Longitude fylles inn av kartet i viewet når brukeren klikker på en posisjon.
-            // Tomme verdier betyr at brukeren ikke har valgt noe punkt.
-            // Merk: her sjekkes bare at feltene finnes, ikke at verdiene er gyldige (se ErGyldigPosisjon).
-            if (string.IsNullOrWhiteSpace(model.Latitude) || string.IsNullOrWhiteSpace(model.Longitude))
+            // Sjekk at posisjon er valgt
+            if (model.Latitude == 0.0 || model.Longitude == 0.0)
             {
                 ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
+            }
+
+            // Sjekk at listen ikke er tom
+            if (model.RessursListe == null || !model.RessursListe.Any())
+            {
+                ModelState.AddModelError("", "Du må legge til minst én ressurs i listen.");
+            }
+            else
+            {
+                for (int i = 0; i < model.RessursListe.Count; i++)
+                {
+                    var item = model.RessursListe[i];
+                    if (string.IsNullOrWhiteSpace(item.Navn) || item.Antall <= 0)
+                    {
+                        ModelState.AddModelError("", $"Ressurs #{i + 1} må ha et gyldig navn og antall over 0.");
+                    }
+                }
             }
 
             // Fanger både feilen over og eventuelle valideringsfeil fra modellbindingen.
@@ -53,10 +62,93 @@ namespace Prosjekt.Controllers
                 return View("Index", model);
             }
 
-            // Lagrer ressursen. Finnes navnet fra før, blir den eksisterende ressursen overskrevet.
-            _ressursDatabase[model.Navn] = model;
+            for (int i = 0; i < model.RessursListe.Count; i++)
+            {
+                var baseressurs = model.RessursListe[i];
+                baseressurs.Latitude = model.Latitude.ToString(CultureInfo.InvariantCulture);
+                baseressurs.Longitude = model.Longitude.ToString(CultureInfo.InvariantCulture);
 
-            return View(model);
+                RessursViewModel ressursSomSkalLagres = baseressurs;
+
+                switch (baseressurs.Kategori)
+                {
+                    case RessursViewModel.RessursType.Kjøretøy:
+                        string skilt = Request.Form[$"RessursListe[{i}].Skiltnummer"].ToString();
+                        ressursSomSkalLagres = new KjøretøyViewModel
+                        {
+                            Navn = baseressurs.Navn,
+                            Beskrivelse = baseressurs.Beskrivelse,
+                            Antall = baseressurs.Antall,
+                            Latitude = baseressurs.Latitude,
+                            Longitude = baseressurs.Longitude,
+                            Kategori = baseressurs.Kategori,
+                            Skiltnummer = skilt
+                        };
+                        break;
+
+                    case RessursViewModel.RessursType.Verktøy:
+                        string serie = Request.Form[$"RessursListe[{i}].Serienummer"].ToString();
+                        ressursSomSkalLagres = new VerktøyViewModel
+                        {
+                            Navn = baseressurs.Navn,
+                            Beskrivelse = baseressurs.Beskrivelse,
+                            Antall = baseressurs.Antall,
+                            Latitude = baseressurs.Latitude,
+                            Longitude = baseressurs.Longitude,
+                            Kategori = baseressurs.Kategori,
+                        };
+                        break;
+
+                    case RessursViewModel.RessursType.Klær:
+                        string storrelseStr = Request.Form[$"RessursListe[{i}].Størrelse"].ToString();
+                        Enum.TryParse<KlærViewModel.KlærStørrelse>(storrelseStr, out var str);
+                        ressursSomSkalLagres = new KlærViewModel
+                        {
+                            Navn = baseressurs.Navn,
+                            Beskrivelse = baseressurs.Beskrivelse,
+                            Antall = baseressurs.Antall,
+                            Latitude = baseressurs.Latitude,
+                            Longitude = baseressurs.Longitude,
+                            Kategori = baseressurs.Kategori,
+                            Størrelse = str
+                        };
+                        break;
+
+                    case RessursViewModel.RessursType.Provisjon:
+                        string provTypeStr = Request.Form[$"RessursListe[{i}].ProvisjonType"].ToString();
+                        Enum.TryParse<ProvisjonViewModel.Provisjonstype>(provTypeStr, out var provType);
+                        ressursSomSkalLagres = new ProvisjonViewModel
+                        {
+                            Navn = baseressurs.Navn,
+                            Beskrivelse = baseressurs.Beskrivelse,
+                            Antall = baseressurs.Antall,
+                            Latitude = baseressurs.Latitude,
+                            Longitude = baseressurs.Longitude,
+                            Kategori = baseressurs.Kategori,
+                            Type = provType
+                        };
+                        break;
+
+                    case RessursViewModel.RessursType.Materialer:
+                        string matTypeStr = Request.Form[$"RessursListe[{i}].Materialtype"].ToString();
+                        Enum.TryParse<MaterialerViewModel.MaterialerType>(matTypeStr, out var matType);
+                        ressursSomSkalLagres = new MaterialerViewModel
+                        {
+                            Navn = baseressurs.Navn,
+                            Beskrivelse = baseressurs.Beskrivelse,
+                            Antall = baseressurs.Antall,
+                            Latitude = baseressurs.Latitude,
+                            Longitude = baseressurs.Longitude,
+                            Kategori = baseressurs.Kategori,
+                            Type = matType
+                        };
+                        break;
+                }
+
+                _ressursDatabase[ressursSomSkalLagres.Navn] = ressursSomSkalLagres;
+            }
+
+            return RedirectToAction("Oversikt");
         }
 
         // Sjekker at koordinatene er gyldige tall og innenfor lovlige verdier
@@ -139,6 +231,88 @@ namespace Prosjekt.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model);
+            }
+
+            RessursViewModel ressursSomSkalLagres = model;
+
+            // Bygg riktig underklasse basert på valgt kategori
+            switch (model.Kategori)
+            {
+                case RessursViewModel.RessursType.Kjøretøy:
+                    string skilt = Request.Form["Skiltnummer"].ToString();
+                    string kjøretøyTypeStr = Request.Form["KjøretøyType"].ToString();
+                    Enum.TryParse<KjøretøyViewModel.KjøretøyType>(kjøretøyTypeStr, out var kjøretøyType);
+
+                    ressursSomSkalLagres = new KjøretøyViewModel
+                    {
+                        Navn = model.Navn,
+                        Beskrivelse = model.Beskrivelse,
+                        Antall = model.Antall,
+                        Latitude = model.Latitude,
+                        Longitude = model.Longitude,
+                        Kategori = model.Kategori,
+                        Skiltnummer = skilt,
+                        Type = kjøretøyType
+                    };
+                    break;
+
+                case RessursViewModel.RessursType.Verktøy:
+                    string serie = Request.Form["Serienummer"].ToString();
+                    ressursSomSkalLagres = new VerktøyViewModel
+                    {
+                        Navn = model.Navn,
+                        Beskrivelse = model.Beskrivelse,
+                        Antall = model.Antall,
+                        Latitude = model.Latitude,
+                        Longitude = model.Longitude,
+                        Kategori = model.Kategori,
+                    };
+                    break;
+
+                case RessursViewModel.RessursType.Klær:
+                    string storrelseStr = Request.Form["Størrelse"].ToString();
+                    Enum.TryParse<KlærViewModel.KlærStørrelse>(storrelseStr, out var str);
+                    ressursSomSkalLagres = new KlærViewModel
+                    {
+                        Navn = model.Navn,
+                        Beskrivelse = model.Beskrivelse,
+                        Antall = model.Antall,
+                        Latitude = model.Latitude,
+                        Longitude = model.Longitude,
+                        Kategori = model.Kategori,
+                        Størrelse = str
+                    };
+                    break;
+
+                case RessursViewModel.RessursType.Provisjon:
+                    string provTypeStr = Request.Form["ProvisjonType"].ToString();
+                    Enum.TryParse<ProvisjonViewModel.Provisjonstype>(provTypeStr, out var provType);
+                    ressursSomSkalLagres = new ProvisjonViewModel
+                    {
+                        Navn = model.Navn,
+                        Beskrivelse = model.Beskrivelse,
+                        Antall = model.Antall,
+                        Latitude = model.Latitude,
+                        Longitude = model.Longitude,
+                        Kategori = model.Kategori,
+                        Type = provType
+                    };
+                    break;
+
+                case RessursViewModel.RessursType.Materialer:
+                    string matTypeStr = Request.Form["Materialtype"].ToString();
+                    Enum.TryParse<MaterialerViewModel.MaterialerType>(matTypeStr, out var matType);
+                    ressursSomSkalLagres = new MaterialerViewModel
+                    {
+                        Navn = model.Navn,
+                        Beskrivelse = model.Beskrivelse,
+                        Antall = model.Antall,
+                        Latitude = model.Latitude,
+                        Longitude = model.Longitude,
+                        Kategori = model.Kategori,
+                        Type = matType
+                    };
+                    break;
             }
 
             // Lagrer under (eventuelt nytt) navn. Finnes navnet fra før, blir den ressursen overskrevet.

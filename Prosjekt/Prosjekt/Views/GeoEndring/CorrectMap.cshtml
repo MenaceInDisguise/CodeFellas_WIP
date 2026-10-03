@@ -1,0 +1,121 @@
+﻿@model Prosjekt.Models.ModelView.GeoEndringViewModel
+
+<h2>Registrer Geografiske Hendelser</h2>
+
+<div class="row">
+    <!-- Skjema på venstre side -->
+    <div class="col-md-4">
+        <form asp-action="CorrectMap" method="post">
+            <div class="form-group mb-3">
+                <label for="latitude">Breddegrad</label>
+                <input type="text" id="latitude" name="Latitude" value="@Model?.Latitude" class="form-control" readonly required />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="longitude">Lengdegrad</label>
+                <input type="text" id="longitude" name="Longitude" value="@Model?.Longitude" class="form-control" readonly required />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="description">Beskrivelse</label>
+                <textarea id="description" name="Description" class="form-control" rows="4" required>@Model?.Description</textarea>
+            </div>
+            <div class="form-group mb-3">
+                <label for="changeTypes" class="fw-bold">Endringstyper</label>
+                <div id="changeTypes" class="mt-1">
+                    @if (Model?.ChangeTypes != null && Model.ChangeTypes.Any())
+                    {
+                        @foreach (var changeType in Model.ChangeTypes)
+                        {
+                            var isChecked = Model.SelectedChangeTypes != null && Model.SelectedChangeTypes.Contains(changeType);
+                            <div class="form-check">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       name="SelectedChangeTypes" 
+                                       value="@changeType" 
+                                       id="changeType_@changeType" 
+                                       @(isChecked ? "checked" : "") />
+                                <label class="form-check-label" for="changeType_@changeType">
+                                    @changeType
+                                </label>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted small">Ingen endringstyper tilgjengelig.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="radius">Radius (meter)</label>
+                <input type="number" id="radius" name="Radius" class="form-control" value="@(Model?.Radius ?? 500)" min="10" step="10" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-2 w-100">Lagre</button>
+        </form>
+    </div>
+
+    <!-- Kart på høyre side -->
+    <div class="col-md-8">
+        <div id="map" style="height: 450px;"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var map = L.map('map').setView([58.1467, 7.9956], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var currentMarker;
+        var currentCircle;
+        var selectedLat = "@Model?.Latitude";
+        var selectedLng = "@Model?.Longitude";
+
+        function updateShape() {
+            if (!selectedLat || !selectedLng) return;
+
+            var radius = parseFloat(document.getElementById('radius').value) || 0;
+
+            // Fjern eksisterende markør og sirkel
+            if (currentMarker) map.removeLayer(currentMarker);
+            if (currentCircle) map.removeLayer(currentCircle);
+
+            // Legg til markør i sentrum
+            currentMarker = L.marker([selectedLat, selectedLng]).addTo(map);
+
+            // Tegn sirkelen med oppgitt radius (i meter)
+            currentCircle = L.circle([selectedLat, selectedLng], {
+                radius: radius,
+                color: '#3388ff',
+                fillColor: '#3388ff',
+                fillOpacity: 0.2
+            }).addTo(map);
+        }
+
+        // Hvis posisjon allerede var oppgitt i modellen, tegn den ved innlasting
+        if (selectedLat && selectedLng) {
+            updateShape();
+        }
+
+        // Klikk på kartet setter posisjon og tegner sirkel
+        map.on('click', function(e) {
+            selectedLat = e.latlng.lat;
+            selectedLng = e.latlng.lng;
+
+            document.getElementById('latitude').value = selectedLat;
+            document.getElementById('longitude').value = selectedLng;
+
+            updateShape();
+        });
+
+        // Oppdater sirkelen umiddelbart når brukeren endrer radius-feltet
+        document.getElementById('radius').addEventListener('input', function() {
+            updateShape();
+        });
+    </script>
+}

@@ -316,7 +316,7 @@ namespace Prosjekt.Controllers
             }
 
             // Lagrer under (eventuelt nytt) navn. Finnes navnet fra før, blir den ressursen overskrevet.
-            _ressursDatabase[model.Navn] = model;
+_ressursDatabase[ressursSomSkalLagres.Navn] = ressursSomSkalLagres;
 
             return RedirectToAction("Oversikt");
         }

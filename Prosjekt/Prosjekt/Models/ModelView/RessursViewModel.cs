@@ -5,6 +5,16 @@ namespace Prosjekt.Models.ModelView
     //ViewModel som inneholder informasjon om en ressurs som brukeren kan registrere.
     public class RessursViewModel
     {
+        public enum RessursType
+        {
+            Provisjon,
+            Klær,
+            Verktøy,
+            Kjøretøy,
+            Materialer,
+            Annet
+        }
+
         //Navnet på ressursen.
         public string Navn { get; set; } = string.Empty;
 
@@ -21,5 +31,8 @@ namespace Prosjekt.Models.ModelView
         //Lengdegraden til posisjonen.
         [Display(Name = "Lengdegrad")]
         public string Longitude { get; set; } = string.Empty;
+
+        // Kategorien som ressursen tilhører.
+        public RessursType Kategori { get; set; } = RessursType.Annet;
     }
 }

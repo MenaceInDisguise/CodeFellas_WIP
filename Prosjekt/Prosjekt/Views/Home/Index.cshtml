@@ -1,12 +1,69 @@
-﻿@model string
+﻿@model IEnumerable<Prosjekt.Models.ModelView.GeoEndringViewModel>
+
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Hjem - Geografiske Hendelser";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-
-    <!-- Viser teksten fra HomeController her -->
-    <h3>@Model</h3>
+<!-- Kartbeholder for Hjemmesiden -->
+<div class="card shadow-sm">
+    <div class="card-body p-2">
+        <div id="homeMap" style="height: 500px; width: 100%;"></div>
+    </div>
 </div>
+
+@section Scripts {
+    <!-- Legg til Leaflet CSS for at kartet skal vises korrekt -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Endret fra 'overviewMap' til 'homeMap' for å matche div-IDen over
+        var map = L.map('homeMap').setView([58.1467, 7.9956], 11);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var positions = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+        var bounds = [];
+
+        if (positions && positions.length > 0) {
+            positions.forEach(function(pos) {
+                var lat = parseFloat(pos.Latitude);
+                var lng = parseFloat(pos.Longitude);
+                var radius = parseFloat(pos.Radius);
+                
+                // Hent valgte endringstyper eller vis standardtekst
+                var changeTypesText = (pos.SelectedChangeTypes && pos.SelectedChangeTypes.length > 0) 
+                    ? pos.SelectedChangeTypes.join(', ') 
+                    : 'Ingen angitt';
+
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    L.marker([lat, lng])
+                        .bindPopup(`
+                            <b>${pos.Description}</b><br>
+                            <b>Endringstype:</b> ${changeTypesText}<br>
+                            <b>Radius:</b> ${radius} m
+                        `)
+                        .addTo(map);
+                    
+                    L.circle([lat, lng], {
+                        radius: radius,
+                        color: '#3388ff',
+                        fillColor: '#3388ff',
+                        fillOpacity: 0.2
+                    }).addTo(map);
+
+                    bounds.push([lat, lng]);
+                }
+            });
+        }
+
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
+        }
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 200);
+    </script>
+}

@@ -5,82 +5,175 @@
     ViewData["Title"] = "Endre Ressurs";
 }
 
-<h1>Endre Ressurs</h1>
+<div class="row align-items-stretch min-vh-100 g-0">
+    <div class="col-md-5 p-3 d-flex flex-column">
+        <h2>Rediger Ressurs</h2>
+        <form asp-controller="Ressurs" asp-action="Edit" method="post" autocomplete="off" class="flex-grow-1">
+            <div asp-validation-summary="All" class="text-danger"></div>
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-controller="Ressurs" asp-action="Edit" method="post" autocomplete="off">
-
-            @* Navnet er ID-en i controlleren; det opprinnelige sendes med i tilfelle brukeren endrer navnet *@
             <input type="hidden" name="opprinneligNavn" value="@Model.Navn" />
 
-            @* Skjulte koordinater som oppdateres når brukeren klikker ny posisjon i kartet *@
-            <input asp-for="Latitude" type="hidden" />
-            <input asp-for="Longitude" type="hidden" />
+            <div class="border p-3 mb-3 rounded bg-light">
+                <div class="form-group mb-2">
+                    <label asp-for="Navn"></label>
+                    <input asp-for="Navn" class="form-control" />
+                </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Navn"></label>
-                <input asp-for="Navn" class="form-control" />
+                <div class="form-group mb-2">
+                    <label asp-for="Beskrivelse"></label>
+                    <textarea asp-for="Beskrivelse" class="form-control" placeholder="Gjerne kom med litt mer utdypende informasjon om ressursen din"></textarea>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label asp-for="Kategori"></label>
+                    <select asp-for="Kategori" id="kategoriVelger" class="form-select" onchange="oppdaterSkjemavisning()">
+                        <option value="Kjøretøy">Kjøretøy</option>
+                        <option value="Provisjon">Provisjon</option>
+                        <option value="Materialer">Materialer</option>
+                        <option value="Klær">Klær</option>
+                        <option value="Verktøy">Verktøy</option>
+                        <option value="Annet">Annet</option>
+                    </select>
+                </div>
+
+                <!-- Underkategorier / Spesifikke felter per kategori -->
+                <!-- Kjøretøy -->
+                <div id="seksjonKjøretøy" class="kategori-seksjon mb-2" style="display:none;">
+                    <label>Kjøretøytype</label>
+                    <select id="inputKjøretøyType" class="form-select mb-2">
+                        <option value="Bil">Bil</option>
+                        <option value="Buss">Buss</option>
+                        <option value="Sykkel">Sykkel</option>
+                        <option value="Motorsykkel">Motorsykkel</option>
+                        <option value="Traktor">Traktor</option>
+                        <option value="Lastebil">Lastebil</option>
+                        <option value="Doser">Doser</option>
+                        <option value="Gravemaskin">Gravemaskin</option>
+                        <option value="Annet">Annet</option>
+                    </select>
+
+                    <label>Skiltnummer</label>
+                    <input id="inputSkiltnummer" class="form-control" placeholder="F.eks. EL 12345" />
+                </div>
+
+                <!-- Materialer -->
+                <div id="seksjonMaterialer" class="kategori-seksjon mb-2" style="display:none;">
+                    <label>Materialtype</label>
+                    <select id="inputMaterialtype" class="form-select">
+                        <option value="Treverk">Treverk</option>
+                        <option value="Metall">Metall</option>
+                        <option value="Plast">Plast</option>
+                        <option value="Glass">Glass</option>
+                        <option value="Grus">Grus</option>
+                        <option value="Stein">Stein</option>
+                        <option value="Jord">Jord</option>
+                        <option value="Sand">Sand</option>
+                        <option value="Annet">Annet</option>
+                    </select>
+                </div>
+
+                <!-- Klær -->
+                <div id="seksjonKlær" class="kategori-seksjon mb-2" style="display:none;">
+                    <label>Størrelse</label>
+                    <select id="inputStørrelse" class="form-select">
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
+
+                <!-- Provisjon -->
+                <div id="seksjonProvisjon" class="kategori-seksjon mb-2" style="display:none;">
+                    <label>Provisjonstype</label>
+                    <select id="inputProvisjonType" class="form-select">
+                        <option value="Vann">Vann</option>
+                        <option value="MatEnPorsjon">Mat (1 porsjon)</option>
+                    </select>
+                </div>
+
+                <!-- Antall flyttet til bunnen -->
+                <div class="form-group mb-3">
+                    <label asp-for="Antall"></label>
+                    <input asp-for="Antall" type="number" min="1" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group mb-2">
+                <label asp-for="Latitude"></label>
+                <input asp-for="Latitude" id="Latitude" class="form-control" readonly required />
             </div>
             <div class="form-group mb-3">
-                <label asp-for="Beskrivelse"></label>
-                <input asp-for="Beskrivelse" class="form-control" />
+                <label asp-for="Longitude"></label>
+                <input asp-for="Longitude" id="Longitude" class="form-control" readonly required />
             </div>
-            <div class="form-group mb-3">
-                <label asp-for="Antall"></label>
-                <input asp-for="Antall" type="number" class="form-control" />
-            </div>
-            <button type="submit" class="btn btn-primary">Lagre endringer</button>
-            <a asp-action="Oversikt" class="btn btn-secondary">Avbryt</a>
+
+            <button type="submit" class="btn btn-primary w-100 mt-2">Lagre endringer</button>
+            <a asp-action="Oversikt" class="btn btn-secondary w-100 mt-2">Avbryt</a>
         </form>
     </div>
-    <div class="col-md-6">
-        <div id="redigerKart" style="height: 250px;"></div>
+
+    <div class="col-md-7 d-flex flex-column p-3">
+        <div id="map" class="flex-grow-1 w-100 rounded" style="min-height: 500px; height: 100%;"></div>
     </div>
 </div>
 
 @section Scripts 
 {
     <script>
-        var lat = parseFloat('@Model.Latitude');
-        var lng = parseFloat('@Model.Longitude');
+        function oppdaterSkjemavisning() {
+            let select = document.getElementById('kategoriVelger');
+            let valgtTekst = select.value;
 
-        var harPosisjon = !isNaN(lat) && !isNaN(lng);
-        // Mangler lagret posisjon, starter kartet over Kristiansand
-        var startPunkt = harPosisjon ? [lat, lng] : [58.1467, 7.9956];
+            let seksjoner = document.querySelectorAll('.kategori-seksjon');
+            seksjoner.forEach(s => s.style.display = 'none');
 
-        var kart = L.map('redigerKart').setView(startPunkt, harPosisjon ? 14 : 12);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(kart);
-
-        var markor;
-        var selectedLat, selectedLng;
-
-        function updateMarkor() {
-            if (!selectedLat || !selectedLng) return;
-
-            // Fjern eksisterende markør
-            if (markor) kart.removeLayer(markor);
-
-            // Legg til markør i sentrum
-            markor = L.marker([selectedLat, selectedLng]).addTo(kart);
+            if (valgtTekst === "Kjøretøy") {
+                document.getElementById('seksjonKjøretøy').style.display = 'block';
+            } else if (valgtTekst === "Verktøy") {
+                document.getElementById('seksjonVerktøy').style.display = 'block';
+            } else if (valgtTekst === "Materialer") {
+                document.getElementById('seksjonMaterialer').style.display = 'block';
+            } else if (valgtTekst === "Klær") {
+                document.getElementById('seksjonKlær').style.display = 'block';
+            } else if (valgtTekst === "Provisjon") {
+                document.getElementById('seksjonProvisjon').style.display = 'block';
+            }
         }
 
-        if (harPosisjon) 
-        {
-            markor = L.marker(startPunkt).addTo(kart);
-        }
-        kart.on('click', function(e) {
-            selectedLat = e.latlng.lat.toFixed(6);
-            selectedLng = e.latlng.lng.toFixed(6);
-
-            document.getElementById('Latitude').value = selectedLat;
-            document.getElementById('Longitude').value = selectedLng;
-
-            updateMarkor();
+        // Kjør visning ved lasting basert på lagret kategori
+        document.addEventListener("DOMContentLoaded", function() {
+            oppdaterSkjemavisning();
         });
 
+        // Hent eksisterende posisjon fra modellen, eller bruk standard (Kristiansand)
+        var lat = parseFloat('@Model.Latitude');
+        var lng = parseFloat('@Model.Longitude');
+        var harPosisjon = !isNaN(lat) && !isNaN(lng);
+        var startPunkt = harPosisjon ? [lat, lng] : [58.1467, 7.9956];
+
+        var map = L.map('map').setView(startPunkt, harPosisjon ? 14 : 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var currentMarker;
+        if (harPosisjon) {
+            currentMarker = L.marker(startPunkt).addTo(map);
+        }
+
+        map.on('click', function(e) {
+            var klikketLat = e.latlng.lat.toFixed(6);
+            var klikketLng = e.latlng.lng.toFixed(6);
+            document.getElementById('Latitude').value = klikketLat;
+            document.getElementById('Longitude').value = klikketLng;
+
+            if (currentMarker) map.removeLayer(currentMarker);
+            currentMarker = L.marker([klikketLat, klikketLng]).addTo(map);
+        });
+
+        setTimeout(function () { map.invalidateSize(); }, 200);
     </script>
 }

@@ -1,10 +1,6 @@
-﻿@model List<Prosjekt.Models.ModelView.PositionViewModel>
-
-@* Leaflet lastes allerede i _Layout – denne og script-taggen under laster det på nytt *@
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+﻿@model List<Prosjekt.Models.ModelView.GeoEndringViewModel>
 
 <h2>Oversikt over registrerte geografiske hendelser</h2>
-
 <div class="row">
     <!-- Liste på venstre side -->
     <div class="col-md-4">
@@ -13,6 +9,7 @@
             {
                 <div class="list-group-item mb-2">
                     <h5>@pos.Description</h5>
+                    <p class="mb-1"><strong>Endringstyper:</strong> <span class="badge bg-info text-dark">@(pos.SelectedChangeTypes != null && pos.SelectedChangeTypes.Any() ? string.Join(", ", pos.SelectedChangeTypes) : "Ingen angitt")</span></p>
                     <p class="mb-1"><strong>Breddegrad:</strong> @pos.Latitude</p>
                     <p class="mb-1"><strong>Lengdegrad:</strong> @pos.Longitude</p>
                     <p class="mb-0"><strong>Radius:</strong> @pos.Radius m</p>
@@ -36,7 +33,6 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Hendelsene sendes til JavaScript som JSON for å tegnes i kartet
         var positions = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
         var bounds = [];
 
@@ -44,12 +40,20 @@
             var lat = parseFloat(pos.Latitude);
             var lng = parseFloat(pos.Longitude);
             var radius = parseFloat(pos.Radius);
+            
+            // Hent valgte endringstyper eller vis standardtekst
+            var changeTypesText = (pos.SelectedChangeTypes && pos.SelectedChangeTypes.length > 0) 
+                ? pos.SelectedChangeTypes.join(', ') 
+                : 'Ingen angitt';
 
             if (!isNaN(lat) && !isNaN(lng)) {
                 L.marker([lat, lng])
-                    .bindPopup(`<b>${pos.Description}</b><br>Radius: ${radius} m`)
+                    .bindPopup(`
+                        <b>${pos.Description}</b><br>
+                        <b>Endringstype:</b> ${changeTypesText}<br>
+                        <b>Radius:</b> ${radius} m
+                    `)
                     .addTo(map);
-
                 L.circle([lat, lng], {
                     radius: radius,
                     color: '#3388ff',
@@ -61,16 +65,13 @@
             }
         });
 
-        
         if (bounds.length > 0) {
-            // maxZoom forhindrer at kartet zoomer altfor langt inn når det bare er 1 punkt
             map.fitBounds(bounds, {
                 padding: [30, 30],
                 maxZoom: 13
             });
         }
 
-        // Tvinger kartet til å beregne størrelsen på nytt dersom det blir rendret skjult
         setTimeout(function() {
             map.invalidateSize();
         }, 200);

@@ -1,83 +1,330 @@
 ﻿@using Prosjekt.Models.ModelView
-@model RessursViewModel
+@model RessursOppretterViewModel
 
 @{
-    ViewData["Title"] = "Opprett Ressurs";
+    ViewData["Title"] = "Opprett Ressurser";
 }
 
-<h1>Opprett Ressurs</h1>
-<div class="row">
-    <div class="col-md-4">
+<!-- Hovedbeholder med fullskjerm-kart og flytende sidemeny -->
+<div class="position-relative w-100 overflow-hidden" style="height: calc(100vh - 80px); min-height: 500px;">
+
+    <!-- 1. Kartet som dekker hele skjermen -->
+    <div id="map" class="w-100 h-100"></div>
+
+    <!-- 2. Flytende sidemeny på venstre side (skjult i starten) -->
+    <div id="sideMeny" class="position-absolute top-0 start-0 h-100 bg-white shadow-lg p-4 rounded-end d-none"
+         style="z-index: 1000; width: 420px; max-width: 90%; overflow-y: auto;">
+
+        <!-- Lukke-knapp -->
+        <button type="button" class="btn-close float-end" id="lukkMenyBtn" aria-label="Lukk"></button>
+
+        <h2>Registrer Ressurser</h2>
+        <p class="text-muted small">Fyll inn ressurser for den valgte posisjonen på kartet.</p>
+        <hr />
+
         <form asp-controller="Ressurs" asp-action="Create" method="post" autocomplete="off">
+            <div asp-validation-summary="All" class="text-danger"></div>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="border p-3 mb-3 rounded bg-light">
+                <h5 class="mb-3">Legg til ressurs i listen</h5>
 
-            <div class="form-group mb-3">
-                <label asp-for="Navn"></label>
-                <input asp-for="Navn" class="form-control" />
+                <div class="form-group mb-2">
+                    <label class="fw-bold">Navn</label>
+                    <input id="inputNavn" class="form-control" placeholder="F.eks. Lastebil, Skrutrekker" />
+                </div>
+
+                <div class="form-group mb-2">
+                    <label class="fw-bold">Beskrivelse</label>
+                    <textarea id="inputBeskrivelse" class="form-control" rows="2" placeholder="Utdypende informasjon..."></textarea>
+                </div>
+
+                <div class="form-group mb-2">
+                    <label class="fw-bold">Kategori</label>
+                    <select id="kategoriVelger" class="form-select" onchange="oppdaterSkjemavisning()">
+                        <option value="Kjøretøy">Kjøretøy</option>
+                        <option value="Provisjon">Provisjon</option>
+                        <option value="Materialer">Materialer</option>
+                        <option value="Klær">Klær</option>
+                        <option value="Verktøy">Verktøy</option>
+                        <option value="Annet">Annet</option>
+                    </select>
+                </div>
+
+                <!-- Dynamiske kategoriseksjoner -->
+                <div id="seksjonKjøretøy" class="kategori-seksjon mb-2">
+                    <label class="fw-bold">Kjøretøytype</label>
+                    <select id="inputKjøretøyType" class="form-select mb-2">
+                        <option value="Bil">Bil</option>
+                        <option value="Buss">Buss</option>
+                        <option value="Sykkel">Sykkel</option>
+                        <option value="Motorsykkel">Motorsykkel</option>
+                        <option value="Traktor">Traktor</option>
+                        <option value="Lastebil">Lastebil</option>
+                        <option value="Doser">Doser</option>
+                        <option value="Gravemaskin">Gravemaskin</option>
+                        <option value="Annet">Annet</option>
+                    </select>
+
+                    <label class="fw-bold">Skiltnummer</label>
+                    <input id="inputSkiltnummer" class="form-control" placeholder="F.eks. EL 12345" />
+                </div>
+
+                <div id="seksjonVerktøy" class="kategori-seksjon mb-2" style="display:none;">
+                    <label class="fw-bold">Verktøystype</label>
+                    <select id="inputVerktøyType" class="form-select mb-2">
+                        <option value="Håndverktøy">Håndverktøy</option>
+                        <option value="Elektroverktøy">Elektroverktøy</option>
+                        <option value="Hageverktøy">Hageverktøy</option>
+                        <option value="Måleverktøy">Måleverktøy</option>
+                        <option value="Annet">Annet</option>
+                    </select>
+
+                    <label class="fw-bold">Serienummer</label>
+                    <input id="inputSerienummer" class="form-control" placeholder="F.eks. SN-88203" />
+                </div>
+
+                <div id="seksjonMaterialer" class="kategori-seksjon mb-2" style="display:none;">
+                    <label class="fw-bold">Materialtype</label>
+                    <select id="inputMaterialtype" class="form-select">
+                        <option value="Treverk">Treverk</option>
+                        <option value="Metall">Metall</option>
+                        <option value="Plast">Plast</option>
+                        <option value="Glass">Glass</option>
+                        <option value="Grus">Grus</option>
+                        <option value="Stein">Stein</option>
+                        <option value="Jord">Jord</option>
+                        <option value="Sand">Sand</option>
+                        <option value="Annet">Annet</option>
+                    </select>
+                </div>
+
+                <div id="seksjonKlær" class="kategori-seksjon mb-2" style="display:none;">
+                    <label class="fw-bold">Størrelse</label>
+                    <select id="inputStørrelse" class="form-select">
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
+
+                <div id="seksjonProvisjon" class="kategori-seksjon mb-2" style="display:none;">
+                    <label class="fw-bold">Provisjonstype</label>
+                    <select id="inputProvisjonType" class="form-select">
+                        <option value="Vann">Vann</option>
+                        <option value="MatEnPorsjon">Mat (1 porsjon)</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="fw-bold">Antall</label>
+                    <input id="inputAntall" type="number" min="1" value="1" class="form-control" />
+                </div>
+
+                <button type="button" class="btn btn-secondary w-100" onclick="leggTilIListe()">+ Legg i listen</button>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Beskrivelse"></label>
-                <input asp-for="Beskrivelse" class="form-control" />
+            <!-- Tabell over ressurser som skal opprettes -->
+            <h6 class="fw-bold">Ressurser som blir registrert:</h6>
+            <table class="table table-sm table-bordered" id="ressursTabell">
+                <thead>
+                    <tr>
+                        <th>Navn</th>
+                        <th>Antall</th>
+                        <th>Kategori</th>
+                        <th>Handling</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div id="skjulteInputFelter"></div>
+
+            <!-- Valgte koordinater -->
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <label asp-for="Latitude" class="form-label small mb-1 fw-bold"></label>
+                    <input asp-for="Latitude" id="Latitude" class="form-control form-control-sm" readonly required />
+                </div>
+                <div class="col-6">
+                    <label asp-for="Longitude" class="form-label small mb-1 fw-bold"></label>
+                    <input asp-for="Longitude" id="Longitude" class="form-control form-control-sm" readonly required />
+                </div>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Antall"></label>
-                <input asp-for="Antall" type="number" class="form-control" />
-            </div>
-            @* Koordinatene er skrivebeskyttet og fylles inn ved klikk i kartet *@
-            <div class="form-group">
-                <label asp-for="Latitude"></label>
-                <input asp-for="Latitude" class="form-control" readonly required/>
-            </div>
-            <div>
-                <label asp-for="Longitude"></label>
-                <input asp-for="Longitude" class="form-control" readonly required/>
-            </div>
-
-            <button type="submit" class="btn btn-primary mt-2">Opprett ressurs</button>
+            <button type="submit" class="btn btn-primary w-100">Opprett alle ressurser</button>
         </form>
-    </div>
-
-
-    <div class="col-md-8">
-        <div id="map" style="height: 450px;"></div>
     </div>
 </div>
 
-
 @section Scripts {
     <script>
-        // Startposisjon: Kristiansand
-        var map = L.map('map').setView([58.1467, 7.9956], 12);
+        let mekortListe = [];
+        var currentMarker = null;
+        var sideMeny = document.getElementById('sideMeny');
 
+        // Initialiser kartet
+        var map = L.map('map').setView([58.1467, 7.9956], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        var currentMarker;
-        var selectedLat, selectedLng;
+        // Håndter klikk på kartet
+        map.on('click', function(e) {
+            var lat = e.latlng.lat.toFixed(6);
+            var lng = e.latlng.lng.toFixed(6);
 
-        function updateShape() {
-            if (!selectedLat || !selectedLng) return;
+            document.getElementById('Latitude').value = lat;
+            document.getElementById('Longitude').value = lng;
 
-            // Fjern eksisterende markør
-            if (currentMarker) map.removeLayer(currentMarker);
+            // Fjern eksisterende markør hvis den finnes
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
 
-            // Legg til markør i sentrum
-            currentMarker = L.marker([selectedLat, selectedLng]).addTo(map);
+            // Sett ny markør
+            currentMarker = L.marker([lat, lng]).addTo(map);
+
+            // Åpne menyen dersom den var skjult
+            var varSkjult = sideMeny.classList.contains('d-none');
+            sideMeny.classList.remove('d-none');
+
+            // Beveg kartet slik at markøren havner i sentrum
+            // Siden sidemenyen dekker ~420px på venstre side, forskyver vi kartet litt mot høyre
+            // slik at markøren ikke gjemmer seg bak menyen.
+            var menyBredde = sideMeny.offsetWidth || 420;
+
+            // Panorer med flyTo/panTo for en myk animasjon
+            map.flyTo([lat, lng], map.getZoom(), {
+                animate: true,
+                duration: 0.8
+            });
+
+            // Forskyv senteret litt mot høyre slik at markøren havner i midten av det synlige området
+            setTimeout(function() {
+                map.panBy([-menyBredde / 2, 0], { animate: true, duration: 0.4 });
+            }, 300);
+        });
+
+        // Lukking av menyen
+        document.getElementById('lukkMenyBtn').addEventListener('click', function() {
+            sideMeny.classList.add('d-none');
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+                currentMarker = null;
+            }
+        });
+
+        function oppdaterSkjemavisning() {
+            let select = document.getElementById('kategoriVelger');
+            let valgtTekst = select.value;
+
+            let seksjoner = document.querySelectorAll('.kategori-seksjon');
+            seksjoner.forEach(s => s.style.display = 'none');
+
+            if (valgtTekst === "Kjøretøy") {
+                document.getElementById('seksjonKjøretøy').style.display = 'block';
+            } else if (valgtTekst === "Verktøy") {
+                document.getElementById('seksjonVerktøy').style.display = 'block';
+            } else if (valgtTekst === "Materialer") {
+                document.getElementById('seksjonMaterialer').style.display = 'block';
+            } else if (valgtTekst === "Klær") {
+                document.getElementById('seksjonKlær').style.display = 'block';
+            } else if (valgtTekst === "Provisjon") {
+                document.getElementById('seksjonProvisjon').style.display = 'block';
+            }
         }
 
-        // Klikk på kartet setter posisjon
-        map.on('click', function(e) {
-            selectedLat = e.latlng.lat.toFixed(6);
-            selectedLng = e.latlng.lng.toFixed(6);
+        function leggTilIListe() {
+            let navn = document.getElementById('inputNavn').value;
+            let beskrivelse = document.getElementById('inputBeskrivelse').value;
+            let antall = document.getElementById('inputAntall').value;
+            let kategoriSelect = document.getElementById('kategoriVelger');
+            let kategoriNavn = kategoriSelect.value;
 
-            document.getElementById('Latitude').value = selectedLat;
-            document.getElementById('Longitude').value = selectedLng;
+            let kjøretøyType = document.getElementById('inputKjøretøyType') ? document.getElementById('inputKjøretøyType').value : '';
+            let skiltnummer = document.getElementById('inputSkiltnummer') ? document.getElementById('inputSkiltnummer').value : '';
+            let verktøyType = document.getElementById('inputVerktøyType') ? document.getElementById('inputVerktøyType').value : '';
+            let serienummer = document.getElementById('inputSerienummer') ? document.getElementById('inputSerienummer').value : '';
+            let materialtype = document.getElementById('inputMaterialtype') ? document.getElementById('inputMaterialtype').value : '';
+            let størrelse = document.getElementById('inputStørrelse') ? document.getElementById('inputStørrelse').value : '';
+            let provisjonType = document.getElementById('inputProvisjonType') ? document.getElementById('inputProvisjonType').value : '';
 
-            updateShape();
-        });
+            if (!navn || antall <= 0) {
+                alert("Vennligst fyll ut navn og et gyldig antall.");
+                return;
+            }
+
+            mekortListe.push({
+                navn: navn,
+                beskrivelse: beskrivelse,
+                antall: antall,
+                kategoriNavn: kategoriNavn,
+                kjøretøyType: kjøretøyType,
+                skiltnummer: skiltnummer,
+                verktøyType: verktøyType,
+                serienummer: serienummer,
+                materialtype: materialtype,
+                størrelse: størrelse,
+                provisjonType: provisjonType
+            });
+
+            document.getElementById('inputNavn').value = '';
+            document.getElementById('inputBeskrivelse').value = '';
+            document.getElementById('inputAntall').value = '1';
+
+            if (document.getElementById('inputSkiltnummer')) document.getElementById('inputSkiltnummer').value = '';
+            if (document.getElementById('inputSerienummer')) document.getElementById('inputSerienummer').value = '';
+
+            oppdaterTabell();
+        }
+
+        function oppdaterTabell() {
+            let tbody = document.querySelector('#ressursTabell tbody');
+            let skjulteInputs = document.getElementById('skjulteInputFelter');
+            tbody.innerHTML = '';
+            skjulteInputs.innerHTML = '';
+
+            mekortListe.forEach((item, index) => {
+                tbody.innerHTML += `<tr>
+                    <td>${item.navn}</td>
+                    <td>${item.antall}</td>
+                    <td>${item.kategoriNavn}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="fjernFraListe(${index})">X</button></td>
+                </tr>`;
+
+                let inputs = `
+                    <input type="hidden" name="RessursListe[${index}].Navn" value="${item.navn}" />
+                    <input type="hidden" name="RessursListe[${index}].Beskrivelse" value="${item.beskrivelse}" />
+                    <input type="hidden" name="RessursListe[${index}].Antall" value="${item.antall}" />
+                    <input type="hidden" name="RessursListe[${index}].Kategori" value="${item.kategoriNavn}" />
+                `;
+
+                if (item.kategoriNavn === "Kjøretøy") {
+                    inputs += `<input type="hidden" name="RessursListe[${index}].KjøretøyType" value="${item.kjøretøyType}" />`;
+                    inputs += `<input type="hidden" name="RessursListe[${index}].Skiltnummer" value="${item.skiltnummer}" />`;
+                } else if (item.kategoriNavn === "Verktøy") {
+                    inputs += `<input type="hidden" name="RessursListe[${index}].VerktøyType" value="${item.verktøyType}" />`;
+                    inputs += `<input type="hidden" name="RessursListe[${index}].Serienummer" value="${item.serienummer}" />`;
+                } else if (item.kategoriNavn === "Materialer") {
+                    inputs += `<input type="hidden" name="RessursListe[${index}].Materialtype" value="${item.materialtype}" />`;
+                } else if (item.kategoriNavn === "Klær") {
+                    inputs += `<input type="hidden" name="RessursListe[${index}].Størrelse" value="${item.størrelse}" />`;
+                } else if (item.kategoriNavn === "Provisjon") {
+                    inputs += `<input type="hidden" name="RessursListe[${index}].ProvisjonType" value="${item.provisjonType}" />`;
+                }
+
+                skjulteInputs.innerHTML += inputs;
+            });
+        }
+
+        function fjernFraListe(index) {
+            mekortListe.splice(index, 1);
+            oppdaterTabell();
+        }
+
+        setTimeout(function () { map.invalidateSize(); }, 200);
     </script>
 }

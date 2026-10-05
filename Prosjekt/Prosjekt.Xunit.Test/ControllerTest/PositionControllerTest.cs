@@ -41,8 +41,8 @@ namespace Prosjekt.Xunit
 
             var model = new GeoEndringViewModel
             {
-                Latitude = "59.9",
-                Longitude = "10.7",
+                Latitude = 59.9,
+                Longitude = 10.7,
                 Description = "Test"
             };
 
@@ -63,8 +63,8 @@ namespace Prosjekt.Xunit
 
             var model = new GeoEndringViewModel
             {
-                Latitude = "59.9",
-                Longitude = "10.7",
+                Latitude = 59.9,
+                Longitude = 10.7,
                 Description = "Test"
             };
 

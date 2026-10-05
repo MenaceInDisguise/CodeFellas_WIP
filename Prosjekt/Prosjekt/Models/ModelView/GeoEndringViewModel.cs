@@ -6,10 +6,10 @@ namespace Prosjekt.Models.ModelView
     public class GeoEndringViewModel
     {
         //Breddegraden til posisjonen som hentes fra kartet.
-        public string Latitude { get; set; } = string.Empty;
+        public double? Latitude { get; set; }
 
         //Lengdegraden til posisjonen osm hentes fra kartet.
-        public string Longitude { get; set; } = string.Empty;
+        public double? Longitude { get; set; }
 
 
         //Beskrivelse av posisjonen eller hendelsen.

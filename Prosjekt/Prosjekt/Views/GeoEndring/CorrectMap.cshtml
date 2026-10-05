@@ -59,13 +59,20 @@
 
     <!-- Kart på høyre side -->
     <div class="col-md-8">
-        <div id="map" style="height: 450px;"></div>
+        <div id="map" style="height: 450px;" data-lat="@Model?.Latitude" data-lng="@Model?.Longitude"></div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        var map = L.map('map').setView([58.1467, 7.9956], 12);
+        // Les startkoordinater fra data-attributter og bruk standardverdier hvis de mangler
+        var mapEl = document.getElementById('map');
+        var initialLat = parseFloat(mapEl.dataset.lat);
+        var initialLng = parseFloat(mapEl.dataset.lng);
+        if (isNaN(initialLat)) initialLat = 58.163;
+        if (isNaN(initialLng)) initialLng = 8.003;
+
+        var map = L.map('map').setView([initialLat, initialLng], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -73,11 +80,11 @@
 
         var currentMarker;
         var currentCircle;
-        var selectedLat = "@Model?.Latitude";
-        var selectedLng = "@Model?.Longitude";
+        var selectedLat = initialLat;
+        var selectedLng = initialLng;
 
         function updateShape() {
-            if (!selectedLat || !selectedLng) return;
+            if (isNaN(selectedLat) || isNaN(selectedLng)) return;
 
             var radius = parseFloat(document.getElementById('radius').value) || 0;
 
@@ -98,7 +105,7 @@
         }
 
         // Hvis posisjon allerede var oppgitt i modellen, tegn den ved innlasting
-        if (selectedLat && selectedLng) {
+        if (!isNaN(initialLat) && !isNaN(initialLng) && mapEl.dataset.lat && mapEl.dataset.lng) {
             updateShape();
         }
 

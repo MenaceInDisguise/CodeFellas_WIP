@@ -4,19 +4,24 @@
     ViewData["Title"] = "Hjem - Geografiske Hendelser";
 }
 
-<!-- Kartbeholder for Hjemmesiden -->
-<div class="card shadow-sm">
-    <div class="card-body p-2">
-        <div id="homeMap" style="height: 500px; width: 100%;"></div>
-    </div>
-</div>
+<!-- CSS for å tvinge innholdet helt ut i kantene (Fjerner ASP.NET standard marger) -->
+<style>
+    main {
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-bottom: 0 !important;
+    }
+</style>
+
+<!-- Kartbeholder som dekker hele det tilgjengelige området -->
+<div id="homeMap" style="height: calc(100vh - 80px); width: 100%; margin: 0; padding: 0;"></div>
 
 @section Scripts {
     <!-- Legg til Leaflet CSS for at kartet skal vises korrekt -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Endret fra 'overviewMap' til 'homeMap' for å matche div-IDen over
         var map = L.map('homeMap').setView([58.1467, 7.9956], 11);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -32,7 +37,6 @@
                 var lng = parseFloat(pos.Longitude);
                 var radius = parseFloat(pos.Radius);
                 
-                // Hent valgte endringstyper eller vis standardtekst
                 var changeTypesText = (pos.SelectedChangeTypes && pos.SelectedChangeTypes.length > 0) 
                     ? pos.SelectedChangeTypes.join(', ') 
                     : 'Ingen angitt';
@@ -62,8 +66,16 @@
             map.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
         }
 
+        // Fikser grå fliser og oppdaterer kartet umiddelbart ved innlasting
         setTimeout(function() {
             map.invalidateSize();
         }, 200);
+
+        // Gjør at kartet dynamisk og sømløst tilpasser seg hvis brukeren endrer vindusstørrelsen
+        const mapContainer = document.getElementById('homeMap');
+        const resizeObserver = new ResizeObserver(() => {
+            map.invalidateSize();
+        });
+        resizeObserver.observe(mapContainer);
     </script>
 }

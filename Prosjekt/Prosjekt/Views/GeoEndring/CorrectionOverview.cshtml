@@ -1,26 +1,34 @@
 ﻿@model List<Prosjekt.Models.ModelView.GeoEndringViewModel>
 
-<h2>Oversikt over registrerte geografiske hendelser</h2>
+@{
+    ViewData["Title"] = "Oversikt over geografiske hendelser";
+}
+
+<h2 class="mb-4">Oversikt over registrerte geografiske hendelser</h2>
+
 <div class="row">
     <!-- Liste på venstre side -->
-    <div class="col-md-4">
-        <div class="list-group">
+    <div class="col-lg-4 col-md-5 mb-4">
+        <div class="list-group shadow-sm" style="max-height: 65vh; overflow-y: auto;">
             @foreach (var pos in Model)
             {
-                <div class="list-group-item mb-2">
-                    <h5>@pos.Description</h5>
-                    <p class="mb-1"><strong>Endringstyper:</strong> <span class="badge bg-info text-dark">@(pos.SelectedChangeTypes != null && pos.SelectedChangeTypes.Any() ? string.Join(", ", pos.SelectedChangeTypes) : "Ingen angitt")</span></p>
-                    <p class="mb-1"><strong>Breddegrad:</strong> @pos.Latitude</p>
-                    <p class="mb-1"><strong>Lengdegrad:</strong> @pos.Longitude</p>
-                    <p class="mb-0"><strong>Radius:</strong> @pos.Radius m</p>
+                <div class="list-group-item mb-2 rounded border">
+                    <h5 class="text-primary">@pos.Description</h5>
+                    <p class="mb-1 small">
+                        <strong>Endringstyper:</strong> 
+                        <span class="badge bg-info text-dark">@(pos.SelectedChangeTypes != null && pos.SelectedChangeTypes.Any() ? string.Join(", ", pos.SelectedChangeTypes) : "Ingen angitt")</span>
+                    </p>
+                    <p class="mb-1 small"><strong>Breddegrad:</strong> @pos.Latitude</p>
+                    <p class="mb-1 small"><strong>Lengdegrad:</strong> @pos.Longitude</p>
+                    <p class="mb-0 small"><strong>Radius:</strong> @pos.Radius m</p>
                 </div>
             }
         </div>
     </div>
 
     <!-- Kart på høyre side -->
-    <div class="col-md-8">
-        <div id="overviewMap" style="height: 500px; width: 100%;"></div>
+    <div class="col-lg-8 col-md-7">
+        <div id="overviewMap" class="shadow-sm" style="height: 65vh; min-height: 400px; width: 100%; border-radius: 8px;"></div>
     </div>
 </div>
 
@@ -41,7 +49,6 @@
             var lng = parseFloat(pos.Longitude);
             var radius = parseFloat(pos.Radius);
             
-            // Hent valgte endringstyper eller vis standardtekst
             var changeTypesText = (pos.SelectedChangeTypes && pos.SelectedChangeTypes.length > 0) 
                 ? pos.SelectedChangeTypes.join(', ') 
                 : 'Ingen angitt';
@@ -66,14 +73,9 @@
         });
 
         if (bounds.length > 0) {
-            map.fitBounds(bounds, {
-                padding: [30, 30],
-                maxZoom: 13
-            });
+            map.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
         }
 
-        setTimeout(function() {
-            map.invalidateSize();
-        }, 200);
+        setTimeout(function() { map.invalidateSize(); }, 200);
     </script>
 }

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Prosjekt.Models.Entities;
 using Prosjekt.Models.ModelView;
 using Prosjekt.Models.ModelView.RessursType;
 using System.Collections.Concurrent;
-using System.Globalization;
 
 namespace Prosjekt.Controllers
 {
@@ -12,12 +12,6 @@ namespace Prosjekt.Controllers
     /// </summary>
     public class RessursController : Controller
     {
-        // Midlertidig lagring i minnet i stedet for en ekte database.
-        // Feltet er static slik at dataene deles mellom alle forespørsler (en ny controller
-        // opprettes per forespørsel), men alt forsvinner når applikasjonen startes på nytt.
-        // ConcurrentDictionary brukes fordi flere forespørsler kan lese/skrive samtidig.
-        // Nøkkelen er ressursens navn, og sammenligningen ignorerer store/små bokstaver,
-        // så "Vann" og "vann" regnes som samme ressurs.
         private static readonly ConcurrentDictionary<string, RessursViewModel> _ressursDatabase = new(StringComparer.OrdinalIgnoreCase);
 
         // Viser et tomt skjema for å registrere en ny ressurs.
@@ -27,16 +21,23 @@ namespace Prosjekt.Controllers
             return View(new RessursOppretterViewModel());
         }
 
-        // Tar imot skjemaet fra Index. Ved feil vises skjemaet på nytt med brukerens
-        // utfylte verdier; ved suksess lagres ressursen og en bekreftelsesside (Create-viewet) vises.
+        // Tar imot skjemaet fra Index.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(RessursOppretterViewModel model)
         {
-            // Sjekk at posisjon er valgt
-            if (model.Latitude == 0.0 || model.Longitude == 0.0)
+            // Sjekk at posisjon er valgt og gyldig via Coordinates
+            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
             {
                 ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
+            }
+            else
+            {
+                var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
+                if (!coords.IsValid())
+                {
+                    ModelState.AddModelError("", "De oppgitte koordinatene er ugyldige.");
+                }
             }
 
             // Sjekk at listen ikke er tom
@@ -56,25 +57,23 @@ namespace Prosjekt.Controllers
                 }
             }
 
-            // Fanger både feilen over og eventuelle valideringsfeil fra modellbindingen.
             if (!ModelState.IsValid)
             {
                 return View("Index", model);
             }
 
-            RessursViewModel sistLagredeRessurs = null;
+            RessursViewModel? sistLagredeRessurs = null;
 
             for (int i = 0; i < model.RessursListe.Count; i++)
             {
                 var baseressurs = model.RessursListe[i];
-                baseressurs.Latitude = model.Latitude.ToString(CultureInfo.InvariantCulture);
-                baseressurs.Longitude = model.Longitude.ToString(CultureInfo.InvariantCulture);
+                baseressurs.Latitude = model.Latitude;
+                baseressurs.Longitude = model.Longitude;
 
                 RessursViewModel ressursSomSkalLagres = baseressurs;
 
                 switch (baseressurs.Kategori)
                 {
-                    // Bygg riktig underklasse basert på valgt kategori
                     case RessursViewModel.RessursType.Kjøretøy:
                         string skilt = Request.Form[$"RessursListe[{i}].Skiltnummer"].ToString();
                         string kjøretøyTypeStr = Request.Form[$"RessursListe[{i}].KjøretøyType"].ToString();
@@ -151,35 +150,10 @@ namespace Prosjekt.Controllers
                 }
 
                 _ressursDatabase[ressursSomSkalLagres.Navn] = ressursSomSkalLagres;
-
-                // Lagre referanse til denne slik at vi kan vise den på kvitteringssiden
                 sistLagredeRessurs = ressursSomSkalLagres;
             }
 
-            // Returner Create-visningen (kvitteringen) i stedet for Oversikt
-            return View("Create", sistLagredeRessurs);
-        }
-
-        // Sjekker at koordinatene er gyldige tall og innenfor lovlige verdier
-        // (breddegrad -90 til 90, lengdegrad -180 til 180).
-        // InvariantCulture brukes fordi kartet sender tall med punktum som desimaltegn (f.eks. "59.91"),
-        // mens norsk kultur ville forventet komma og dermed feilet parsingen.
-        private static bool ErGyldigPosisjon(string latitude, string longitude)
-        {
-            return decimal.TryParse(
-                       latitude,
-                       NumberStyles.Float,
-                       CultureInfo.InvariantCulture,
-                       out var lat) &&
-                   decimal.TryParse(
-                       longitude,
-                       NumberStyles.Float,
-                       CultureInfo.InvariantCulture,
-                       out var lon) &&
-                   lat >= -90 &&
-                   lat <= 90 &&
-                   lon >= -180 &&
-                   lon <= 180;
+            return RedirectToAction(nameof(Oversikt));
         }
 
         // Viser en liste over alle registrerte ressurser.
@@ -191,7 +165,6 @@ namespace Prosjekt.Controllers
         }
 
         // Viser redigeringsskjemaet for ressursen med gitt navn.
-        // Navnet fungerer som ID, siden det er nøkkelen i lagringen.
         [HttpGet]
         public IActionResult Edit(string navn)
         {
@@ -204,37 +177,31 @@ namespace Prosjekt.Controllers
         }
 
         // Lagrer endringer på en ressurs.
-        // opprinneligNavn sendes med fra skjemaet (skjult felt) slik at vi vet hvilken ressurs
-        // som redigeres, selv om brukeren har endret selve navnet.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(string opprinneligNavn, RessursViewModel model)
         {
-            // Samme krav til obligatoriske felt som ved opprettelse.
             if (string.IsNullOrWhiteSpace(model.Navn) || string.IsNullOrWhiteSpace(model.Beskrivelse) || model.Antall <= 0)
             {
                 return View(model);
             }
 
-            // Uten opprinnelig navn vet vi ikke hvilken ressurs som skal oppdateres.
             if (string.IsNullOrEmpty(opprinneligNavn))
             {
                 return BadRequest();
             }
 
-            // Navnet er nøkkelen i lagringen. Er navnet endret, må den gamle oppføringen fjernes,
-            // ellers ville vi fått to ressurser (gammelt og nytt navn).
-            // OBS: dette skjer før posisjonen valideres under. Feiler valideringen,
-            // er den gamle oppføringen allerede slettet uten at den nye er lagret.
-            if (!opprinneligNavn.Equals(model.Navn, StringComparison.OrdinalIgnoreCase))
+            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
             {
-                _ressursDatabase.TryRemove(opprinneligNavn, out _);
+                ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
+                return View(model);
             }
 
-            //Validerer koordinater etter endring
-            if (!ErGyldigPosisjon(model.Latitude, model.Longitude))
+            var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
+            if (!coords.IsValid())
             {
                 ModelState.AddModelError("", "Du må velge en gyldig posisjon.");
+                return View(model);
             }
 
             if (!ModelState.IsValid)
@@ -242,9 +209,13 @@ namespace Prosjekt.Controllers
                 return View(model);
             }
 
+            if (!opprinneligNavn.Equals(model.Navn, StringComparison.OrdinalIgnoreCase))
+            {
+                _ressursDatabase.TryRemove(opprinneligNavn, out _);
+            }
+
             RessursViewModel ressursSomSkalLagres = model;
 
-            // Bygg riktig underklasse basert på valgt kategori
             switch (model.Kategori)
             {
                 case RessursViewModel.RessursType.Kjøretøy:
@@ -266,7 +237,6 @@ namespace Prosjekt.Controllers
                     break;
 
                 case RessursViewModel.RessursType.Verktøy:
-                    string serie = Request.Form["Serienummer"].ToString();
                     ressursSomSkalLagres = new VerktøyViewModel
                     {
                         Navn = model.Navn,
@@ -324,14 +294,12 @@ namespace Prosjekt.Controllers
                     break;
             }
 
-            // Lagrer under (eventuelt nytt) navn. Finnes navnet fra før, blir den ressursen overskrevet.
-_ressursDatabase[ressursSomSkalLagres.Navn] = ressursSomSkalLagres;
+            _ressursDatabase[ressursSomSkalLagres.Navn] = ressursSomSkalLagres;
 
-            return RedirectToAction("Oversikt");
+            return RedirectToAction(nameof(Oversikt));
         }
 
-        // Sletter ressursen med gitt navn. Kun POST (med anti-forgery-token), slik at en ressurs
-        // ikke kan slettes ved et vanlig lenkeklikk. Finnes ikke navnet, skjer ingenting.
+        // Sletter ressursen med gitt navn.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(string navn)
@@ -341,9 +309,7 @@ _ressursDatabase[ressursSomSkalLagres.Navn] = ressursSomSkalLagres;
                 _ressursDatabase.TryRemove(navn, out _);
             }
 
-            return RedirectToAction("Oversikt");
+            return RedirectToAction(nameof(Oversikt));
         }
-
-
     }
 }

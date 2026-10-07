@@ -1,33 +1,44 @@
 using Microsoft.AspNetCore.Mvc;
 using Prosjekt.Models.ModelView;
-using System.Globalization;
+using Prosjekt.Models.Entities;
 using System.Collections.Concurrent;
 
 namespace Prosjekt.Controllers
 {
-    //Controller for registrering og visning av behov.
+    // Controller for registrering og visning av behov.
     public class BehovController : Controller
     {
         private static readonly ConcurrentDictionary<string, BehovViewModel> _behovDatabase = new(StringComparer.OrdinalIgnoreCase);
-        //Viser skjemaet for å registrere et nytt behov.
+
+        // Viser skjemaet for å registrere et nytt behov.
+        [HttpGet]
         public IActionResult Index()
         {
             return View(new BehovViewModel());
         }
 
-        [ValidateAntiForgeryToken]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(BehovViewModel model)
         {
-            // Validerer om alle nødvendige felt er fylt ut og om posisjonen er gyldig.
             if (string.IsNullOrWhiteSpace(model.Navn) || string.IsNullOrWhiteSpace(model.Beskrivelse) || model.Totalt <= 0)
             {
                 ModelState.AddModelError("", "Alle felt må fylles ut gyldig.");
                 return View("Index", model);
             }
-            if (!ErGyldigPosisjon(model.Latitude, model.Longitude))
+
+            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
             {
                 ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
+                return View("Index", model);
+            }
+
+            var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
+
+            if (!coords.IsValid())
+            {
+                ModelState.AddModelError("", "De oppgitte koordinatene er ugyldige.");
+                return View("Index", model);
             }
 
             if (!ModelState.IsValid)
@@ -37,30 +48,14 @@ namespace Prosjekt.Controllers
 
             _behovDatabase[model.Navn] = model;
 
-            return View(model);
+            return RedirectToAction(nameof(Oversikt));
         }
+
         [HttpGet]
         public IActionResult Oversikt()
         {
             var alleBehov = _behovDatabase.Values.ToList();
             return View(alleBehov);
-        }
-        private static bool ErGyldigPosisjon(string latitude, string longitude)
-        {
-            return decimal.TryParse(
-                       latitude,
-                       NumberStyles.Float,
-                       CultureInfo.InvariantCulture,
-                       out var lat) &&
-                   decimal.TryParse(
-                       longitude,
-                       NumberStyles.Float,
-                       CultureInfo.InvariantCulture,
-                       out var lon) &&
-                   lat >= -90 &&
-                   lat <= 90 &&
-                   lon >= -180 &&
-                   lon <= 180;
         }
 
         [HttpGet]
@@ -88,15 +83,18 @@ namespace Prosjekt.Controllers
                 return BadRequest();
             }
 
-            if (!opprinneligNavn.Equals(model.Navn, StringComparison.OrdinalIgnoreCase))
+            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
             {
-                _behovDatabase.TryRemove(opprinneligNavn, out _);
+                ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
+                return View(model);
             }
 
-            //Validerer koordinater etter endring
-            if (!ErGyldigPosisjon(model.Latitude, model.Longitude))
+            var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
+
+            if (!coords.IsValid())
             {
-                ModelState.AddModelError("", "Du må velge en gyldig posisjon.");
+                ModelState.AddModelError("", "De oppgitte koordinatene er ugyldige.");
+                return View(model);
             }
 
             if (!ModelState.IsValid)
@@ -104,9 +102,14 @@ namespace Prosjekt.Controllers
                 return View(model);
             }
 
+            if (!opprinneligNavn.Equals(model.Navn, StringComparison.OrdinalIgnoreCase))
+            {
+                _behovDatabase.TryRemove(opprinneligNavn, out _);
+            }
+
             _behovDatabase[model.Navn] = model;
 
-            return RedirectToAction("Oversikt");
+            return RedirectToAction(nameof(Oversikt));
         }
 
         [HttpPost]
@@ -118,7 +121,7 @@ namespace Prosjekt.Controllers
                 _behovDatabase.TryRemove(navn, out _);
             }
 
-            return RedirectToAction("Oversikt");
+            return RedirectToAction(nameof(Oversikt));
         }
     }
 }

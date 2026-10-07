@@ -13,12 +13,23 @@ namespace Prosjekt.DataAccess
         {
             base.OnModelCreating(modelBuilder);
 
-            // Konfigurer GeoEndring entiteten
+            // Konfigurer GeoEndring-entiteten
             modelBuilder.Entity<GeoEndring>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Latitude).IsRequired();
-                entity.Property(e => e.Longitude).IsRequired();
+
+                // Forteller EF Core at Coordinates skal mappes til kolonnene Latitude og Longitude
+                entity.ComplexProperty(e => e.Coords, coord =>
+                {
+                    coord.Property(c => c.Latitude)
+                         .HasColumnName("Latitude")
+                         .IsRequired();
+
+                    coord.Property(c => c.Longitude)
+                         .HasColumnName("Longitude")
+                         .IsRequired();
+                });
+
                 entity.Property(e => e.Description);
                 entity.Property(e => e.ChangeTypes);
                 entity.Property(e => e.Radius);

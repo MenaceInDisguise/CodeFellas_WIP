@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Prosjekt.DataAccess.Repositories; // Husk å inkludere denne!
+using Prosjekt.DataAccess.Repositories;
 using Prosjekt.Models;
 using Prosjekt.Models.ModelView;
 using Prosjekt.Models.Entities;
@@ -8,7 +8,6 @@ namespace Prosjekt.Controllers
 {
     public class GeoEndringController : Controller
     {
-        // Dependency Injection av repositoryet ditt (erstatter den statiske listen)
         private readonly IGeoEndringRepository _repo;
 
         public GeoEndringController(IGeoEndringRepository repo)
@@ -17,7 +16,6 @@ namespace Prosjekt.Controllers
         }
 
         [HttpGet]
-        // Viser kartet der brukeren kan registrere en posisjon.
         public IActionResult CorrectMap()
         {
             var model = new GeoEndringViewModel();
@@ -26,52 +24,62 @@ namespace Prosjekt.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // Mottar posisjonsdata fra kartet og lagrer den i databasen.
         public async Task<IActionResult> CorrectMap(GeoEndringViewModel model)
         {
-            // Sjekker at dataene som ble sendt inn er gyldige.
             if (!ModelState.IsValid)
             {
                 model.ChangeTypes = new GeoEndringViewModel().ChangeTypes;
                 return View(model);
             }
 
-            // Mapper data fra ViewModellen over til Databasemodellen (Entity-klassen)
+            // 1. Sjekk at koordinatene faktisk er oppgitt (håndterer double?)
+            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
+            {
+                ModelState.AddModelError(string.Empty, "Posisjon må velges i kartet.");
+                model.ChangeTypes = new GeoEndringViewModel().ChangeTypes;
+                return View(model);
+            }
+
+            // 2. Opprett koordinatobjektet med faktiske double-verdier (.Value)
+            var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
+
+            // 3. Valider koordinatene via metoden i record struct-en
+            if (!coords.IsValid())
+            {
+                ModelState.AddModelError(string.Empty, "De oppgitte koordinatene er ugyldige.");
+                model.ChangeTypes = new GeoEndringViewModel().ChangeTypes;
+                return View(model);
+            }
+
+            // 4. Tilordne koordinatobjektet til entiteten
             var geoEndring = new GeoEndring
             {
-                Latitude = model.Latitude,
-                Longitude = model.Longitude,
+                Coords = coords,
                 Description = model.Description,
                 Radius = model.Radius,
-                // Slår sammen de valgte avkrysningsboksene til én tekststreng for databasen
                 ChangeTypes = model.SelectedChangeTypes != null && model.SelectedChangeTypes.Any()
                     ? string.Join(", ", model.SelectedChangeTypes)
                     : string.Empty,
                 CreatedAt = DateTime.UtcNow
             };
 
-            // Lagrer til databasen via repositoryet
             await _repo.AddAsync(geoEndring);
 
-            // Sender brukeren videre til oversiktssiden
             return RedirectToAction(nameof(CorrectionOverview));
         }
 
         [HttpGet]
-        // Viser en oversikt over alle registrerte posisjoner fra databasen.
         public async Task<IActionResult> CorrectionOverview()
         {
-            // Henter rådata fra databasen
             var entities = await _repo.GetAllAsync();
 
-            // Mapper om fra database-entitet (GeoEndring) til ViewModel slik at visningen forstår det
+            // 4. Hent ut bredde- og lengdegrad via e.Coords
             var viewModels = entities.Select(e => new GeoEndringViewModel
             {
-                Latitude = e.Latitude,
-                Longitude = e.Longitude,
+                Latitude = e.Coords.Latitude,
+                Longitude = e.Coords.Longitude,
                 Description = e.Description,
                 Radius = e.Radius,
-                // Deler opp tekststrengen fra databasen tilbake til en liste med endringstyper
                 SelectedChangeTypes = !string.IsNullOrEmpty(e.ChangeTypes)
                     ? e.ChangeTypes.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList()
                     : new List<string>()
@@ -83,8 +91,6 @@ namespace Prosjekt.Controllers
         [HttpGet]
         public static List<GeoEndringViewModel> GetRegisteredPositions()
         {
-            // Returnerer en tom liste for å tilfredsstille eventuelle gamle referanser,
-            // ettersom data nå hentes via databasen.
             return new List<GeoEndringViewModel>();
         }
     }

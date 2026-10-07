@@ -6,9 +6,8 @@ namespace Prosjekt.Models.Entities
     {
         public int Id { get; set; }
 
-        public double? Latitude { get; set; }
-
-        public double? Longitude { get; set; }
+        // Erstatter de separate feltene for Latitude og Longitude
+        public Coordinates Coords { get; set; }
 
         [MaxLength(4000)]
         public string Description { get; set; } = string.Empty;

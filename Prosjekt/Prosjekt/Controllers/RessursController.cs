@@ -62,6 +62,8 @@ namespace Prosjekt.Controllers
                 return View("Index", model);
             }
 
+            RessursViewModel sistLagredeRessurs = null;
+
             for (int i = 0; i < model.RessursListe.Count; i++)
             {
                 var baseressurs = model.RessursListe[i];
@@ -72,6 +74,7 @@ namespace Prosjekt.Controllers
 
                 switch (baseressurs.Kategori)
                 {
+                    // Bygg riktig underklasse basert på valgt kategori
                     case RessursViewModel.RessursType.Kjøretøy:
                         string skilt = Request.Form[$"RessursListe[{i}].Skiltnummer"].ToString();
                         string kjøretøyTypeStr = Request.Form[$"RessursListe[{i}].KjøretøyType"].ToString();
@@ -90,7 +93,6 @@ namespace Prosjekt.Controllers
                         break;
 
                     case RessursViewModel.RessursType.Verktøy:
-                        string serie = Request.Form[$"RessursListe[{i}].Serienummer"].ToString();
                         ressursSomSkalLagres = new VerktøyViewModel
                         {
                             Navn = baseressurs.Navn,
@@ -149,9 +151,13 @@ namespace Prosjekt.Controllers
                 }
 
                 _ressursDatabase[ressursSomSkalLagres.Navn] = ressursSomSkalLagres;
+
+                // Lagre referanse til denne slik at vi kan vise den på kvitteringssiden
+                sistLagredeRessurs = ressursSomSkalLagres;
             }
 
-            return RedirectToAction("Oversikt");
+            // Returner Create-visningen (kvitteringen) i stedet for Oversikt
+            return View("Create", sistLagredeRessurs);
         }
 
         // Sjekker at koordinatene er gyldige tall og innenfor lovlige verdier

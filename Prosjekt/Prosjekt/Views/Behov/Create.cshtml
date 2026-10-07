@@ -4,13 +4,14 @@
 @{
     ViewData["Title"] = "Nytt behov opprettet";
 }
-@* Farge per viktighet – må holdes lik Farge() i Oversikt.cshtml *@
+
+@* Farge per viktighet *@
 @functions {
     string Farge(Viktighet v) => v switch
     {
         Viktighet.Høy => "#dc3545",
-        Viktighet.Middels => "#fd7e14",
-        _ => "#ffc107"
+        Viktighet.Middels => "#ffc107",
+        _ => "#198754"
     };
 }
 
@@ -42,8 +43,7 @@
     <script>
         var lat = parseFloat('@Model.Latitude');
         var lng = parseFloat('@Model.Longitude');
-        // Kvitteringskart som viser det nye behovet, farget etter viktighet
-        var farge = '@Farge(Model.Viktighet)';
+        var viktighetNummer = @((int)Model.Viktighet);
 
         if (!isNaN(lat) && !isNaN(lng)) {
             var kart = L.map('kvitteringBehovKart').setView([lat, lng], 14);
@@ -52,13 +52,26 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(kart);
 
-            L.circleMarker([lat, lng], {
-                radius: 9,
-                color: '#333',
-                weight: 1,
-                fillColor: farge,
-                fillOpacity: 0.9
-            }).addTo(kart);
+            function getIkon(fargeNavn) {
+                return new L.Icon({
+                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${fargeNavn}.png`,
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+            }
+
+            var ikoner = {
+                0: getIkon('green'),
+                1: getIkon('gold'),
+                2: getIkon('red')
+            };
+
+            var valgtIkon = ikoner[viktighetNummer] || ikoner[0];
+
+            L.marker([lat, lng], { icon: valgtIkon }).addTo(kart);
         }
     </script>
 }

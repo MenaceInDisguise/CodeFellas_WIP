@@ -1,0 +1,47 @@
+@using Prosjekt.Models.ModelView
+@model ResourceViewModel
+
+@{
+    ViewData["Title"] = "Du har opprettet ny ressurs";
+}
+
+<h1>Du har opprettet ny ressurs</h1>
+<hr />
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card p-4 h-100 shadow-sm">
+            <p><strong>Navn:</strong> @Model.Name</p>
+            <p><strong>Beskrivelse:</strong> @Model.Description</p>
+            <p><strong>Kategori:</strong> @Model.Category</p>
+            <p><strong>Antall:</strong> @Model.Quantity</p>
+            <p class="mb-0 text-muted small"><strong>Posisjon:</strong> @Model.Latitude, @Model.Longitude</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div id="kvitteringKart" style="height: 40vh; min-height: 250px; border-radius: 8px;" class="shadow-sm"></div>
+    </div>
+</div>
+
+<div class="d-flex flex-wrap gap-2">
+    <a asp-controller="Resource" asp-action="Index" class="btn btn-secondary">Opprett enda en ressurs</a>
+    <a asp-controller="Resource" asp-action="Overview" class="btn btn-primary">Gå til oversikten</a>
+</div>
+
+@section Scripts
+{
+    <script>
+        var lat = parseFloat('@Model.Latitude');
+        var lng = parseFloat('@Model.Longitude');
+
+        var kart = L.map('kvitteringKart').setView([lat, lng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(kart);
+
+        L.marker([lat, lng]).addTo(kart);
+
+        setTimeout(function () { kart.invalidateSize(); }, 200);
+    </script>
+}

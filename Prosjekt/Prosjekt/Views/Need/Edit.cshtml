@@ -1,0 +1,124 @@
+@using Prosjekt.Models.ModelView
+@model NeedViewModel
+
+@{
+    ViewData["Title"] = "Endre Behov";
+}
+
+@functions {
+    string GetColor(Importance v) => v switch
+    {
+        Importance.High => "#dc3545",     // red
+        Importance.Medium => "#ffc107", // yellow
+        _ => "#198754"                  // green
+    };
+}
+
+<h1>Endre Behov</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-controller="Need" asp-action="Edit" method="post" autocomplete="off">
+
+            <input type="hidden" name="originalName" value="@Model.Name" />
+
+            <input asp-for="Latitude" type="hidden" />
+            <input asp-for="Longitude" type="hidden" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Description"></label>
+                <input asp-for="Description" class="form-control" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Total"></label>
+                <input asp-for="Total" type="number" class="form-control" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Importance"></label>
+                <select id="viktighetSelect" asp-for="Importance" asp-items="Html.GetEnumSelectList<Importance>()" class="form-select"></select>
+            </div>
+            <button type="submit" class="btn btn-primary">Lagre endringer</button>
+            <a asp-action="Overview" class="btn btn-secondary">Avbryt</a>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <div id="redigerKart" style="height: 250px;"></div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        var lat = parseFloat('@Model.Latitude');
+        var lng = parseFloat('@Model.Longitude');
+
+        var harPosisjon = !isNaN(lat) && !isNaN(lng);
+        var startPunkt = harPosisjon ? [lat, lng] : [58.1467, 7.9956];
+
+        var kart = L.map('redigerKart').setView(startPunkt, harPosisjon ? 14 : 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(kart);
+
+        var markor;
+        var selectedLat = harPosisjon ? lat : null;
+        var selectedLng = harPosisjon ? lng : null;
+
+        function getIkon(fargeNavn) {
+            return new L.Icon({
+                iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${fargeNavn}.png`,
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+        }
+
+        var ikoner = {
+            0: getIkon('green'),
+            1: getIkon('gold'),
+            2: getIkon('red')
+        };
+
+        function getAktueltIkon() {
+            var selectVal = document.getElementById('viktighetSelect').value;
+            return ikoner[selectVal] || ikoner[0];
+        }
+
+        function updateMarkor() {
+            if (!selectedLat || !selectedLng) return;
+
+            if (markor) kart.removeLayer(markor);
+
+            markor = L.marker([selectedLat, selectedLng], { icon: getAktueltIkon() }).addTo(kart);
+        }
+
+        if (harPosisjon) {
+            markor = L.marker(startPunkt, { icon: getAktueltIkon() }).addTo(kart);
+            document.getElementById('Latitude').value = lat;
+            document.getElementById('Longitude').value = lng;
+        }
+
+        document.getElementById('viktighetSelect').addEventListener('change', function() {
+            if (markor) {
+                markor.setIcon(getAktueltIkon());
+            }
+        });
+
+        kart.on('click', function(e) {
+            selectedLat = e.latlng.lat.toFixed(6);
+            selectedLng = e.latlng.lng.toFixed(6);
+
+            document.getElementById('Latitude').value = selectedLat;
+            document.getElementById('Longitude').value = selectedLng;
+
+            updateMarkor();
+        });
+    </script>
+}

@@ -1,12 +1,12 @@
 namespace Prosjekt.Models.ModelView
 {
-    //Viewmodel som brukes til å vise informasjon om en feil.
+    //Viewmodel used to show information about an error.
     public class ErrorViewModel
     {
-        //Unik ID for forespørselen som førte til feilen.
+        //Unique ID for the request that caused the error.
         public string? RequestId { get; set; }
 
-        //Sjekker om RequestID finnes og bestemmer om den skal vises.
+        //Checks whether RequestID exists and decides whether it should be shown.
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }

@@ -10,7 +10,7 @@ namespace Prosjekt.Xunit
         [Fact]
         public void CorrectMap_Get_ReturnsViewResult()
         {
-            var controller = new GeoEndringController();
+            var controller = new GeoChangeController();
 
             var result = controller.CorrectMap();
 
@@ -20,9 +20,9 @@ namespace Prosjekt.Xunit
         [Fact]
         public void CorrectMap_Post_InvalidModelState_ReturnsViewWithModel()
         {
-            var controller = new GeoEndringController();
+            var controller = new GeoChangeController();
 
-            var model = new GeoEndringViewModel();
+            var model = new GeoChangeViewModel();
 
             controller.ModelState.AddModelError("Latitude", "Required");
 
@@ -37,9 +37,9 @@ namespace Prosjekt.Xunit
         [Fact]
         public void CorrectMap_Post_ValidModel_ReturnsCorrectionOverviewModel()
         {
-            var controller = new GeoEndringController();
+            var controller = new GeoChangeController();
 
-            var model = new GeoEndringViewModel
+            var model = new GeoChangeViewModel
             {
                 Latitude = 59.9,
                 Longitude = 10.7,
@@ -52,16 +52,16 @@ namespace Prosjekt.Xunit
 
             Assert.Equal("CorrectionOverview", viewResult.ViewName);
 
-            var models = Assert.IsType<List<GeoEndringViewModel>>(viewResult.Model);
+            var models = Assert.IsType<List<GeoChangeViewModel>>(viewResult.Model);
             Assert.Contains(model, models);
         }
 
         [Fact]
         public void CorrectionOverview_ReturnsViewResultWithPositions()
         {
-            var controller = new GeoEndringController();
+            var controller = new GeoChangeController();
 
-            var model = new GeoEndringViewModel
+            var model = new GeoChangeViewModel
             {
                 Latitude = 59.9,
                 Longitude = 10.7,
@@ -74,7 +74,7 @@ namespace Prosjekt.Xunit
 
             var viewResult = Assert.IsType<ViewResult>(result);
 
-            var models = Assert.IsType<List<GeoEndringViewModel>>(viewResult.Model);
+            var models = Assert.IsType<List<GeoChangeViewModel>>(viewResult.Model);
             Assert.Contains(model, models);
         }
     }

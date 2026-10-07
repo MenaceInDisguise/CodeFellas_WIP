@@ -25,7 +25,7 @@ namespace Prosjekt.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("Prosjekt.Models.Entities.GeoEndring", b =>
+            modelBuilder.Entity("Prosjekt.Models.Entities.GeoChange", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Prosjekt.Models.Entities;
 
 namespace Prosjekt.DataAccess
@@ -7,15 +7,17 @@ namespace Prosjekt.DataAccess
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<GeoEndring> GeoEndringer { get; set; }
+        public DbSet<GeoChange> GeoChanges { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Konfigurer GeoEndring entiteten
-            modelBuilder.Entity<GeoEndring>(entity =>
+            // Configure the GeoChange entity
+            modelBuilder.Entity<GeoChange>(entity =>
             {
+                // Keeps the existing table name so the database schema is unchanged
+                entity.ToTable("GeoEndringer");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Latitude).IsRequired();
                 entity.Property(e => e.Longitude).IsRequired();

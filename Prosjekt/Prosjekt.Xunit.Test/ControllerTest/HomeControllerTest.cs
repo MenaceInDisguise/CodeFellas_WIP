@@ -9,7 +9,7 @@
 //{
 //    public class HomeControllerTest
 //    {
-//        private static IConfiguration LagTestConfig()
+//        private static IConfiguration CreateTestConfig()
 //        {
 //            return new ConfigurationBuilder()
 //                .AddInMemoryCollection(new Dictionary<string, string?>
@@ -22,7 +22,7 @@
 //        [Fact]
 //        public async Task Index_ReturnsViewResult()
 //        {
-//            var controller = new HomeController(LagTestConfig());
+//            var controller = new HomeController(CreateTestConfig());
 
 //            var result = await controller.Index();
 
@@ -30,11 +30,11 @@
 //        }
 
 //        [Fact]
-//        public void Personvern_ReturnsViewResult()
+//        public void PrivacyPolicy_ReturnsViewResult()
 //        {
-//            var controller = new HomeController(LagTestConfig());
+//            var controller = new HomeController(CreateTestConfig());
 
-//            var result = controller.Personvern();
+//            var result = controller.PrivacyPolicy();
 
 //            Assert.IsType<ViewResult>(result);
 //        }
@@ -42,7 +42,7 @@
 //        [Fact]
 //        public void Error_ReturnsViewResultWithModel()
 //        {
-//            var controller = new HomeController(LagTestConfig());
+//            var controller = new HomeController(CreateTestConfig());
 //            controller.ControllerContext = new ControllerContext
 //            {
 //                HttpContext = new DefaultHttpContext()

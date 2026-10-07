@@ -9,7 +9,7 @@
 //{
 //    public class HomeViewTest
 //    {
-//        private static IConfiguration LagTestConfig()
+//        private static IConfiguration CreateTestConfig()
 //        {
 //            return new ConfigurationBuilder()
 //                .AddInMemoryCollection(new Dictionary<string, string?>
@@ -23,7 +23,7 @@
 //        public async Task Index_ReturnsViewResult()
 //        {
 //            // Arrange
-//            var controller = new HomeController(LagTestConfig());
+//            var controller = new HomeController(CreateTestConfig());
 //            // Act
 //            var result = await controller.Index();
 //            // Assert
@@ -33,7 +33,7 @@
 //        public async Task Index_ReturnsNotNull()
 //        {
 //            // Arrange
-//            var controller = new HomeController(LagTestConfig());
+//            var controller = new HomeController(CreateTestConfig());
 //            // Act
 //            var result = await controller.Index();
 //            // Assert

@@ -1,13 +1,13 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-// 1. Definer MariaDB-containeren
+// 1. Define the MariaDB container
 var mariadb = builder.AddMySql("mariadbcontainer", password: builder.AddParameter("password", secret: true))
                      .WithImage("mariadb", "latest");
 
-// Byttet databasenavn fra "mysql" til "kartdb"
-var kartDb = mariadb.AddDatabase("kartdb");
+// Changed the database name from "mysql" to "kartdb"
+var mapDb = mariadb.AddDatabase("kartdb");
 
-// 2. Registrer webappen fra Dockerfile, sett opp porter og koble til databasen
+// 2. Register the web app from the Dockerfile, set up ports and connect to the database
 builder.AddDockerfile(
     "Prosjekt",
     "..",
@@ -15,6 +15,6 @@ builder.AddDockerfile(
     .WithHttpEndpoint(
         port: 5027,
         targetPort: 8080)
-    .WithReference(kartDb); // Sender automatisk inn tilkoblingsstreng for kartdb til webappen
+    .WithReference(mapDb); // Automatically passes the connection string for kartdb to the web app
 
 builder.Build().Run();

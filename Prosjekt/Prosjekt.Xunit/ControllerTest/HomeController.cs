@@ -15,10 +15,10 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public void Personvern_ReturnsViewResult()
+    public void PrivacyPolicy_ReturnsViewResult()
     {
         var controller = new HomeController();
-        var result = controller.Personvern();
+        var result = controller.PrivacyPolicy();
         Assert.IsType<ViewResult>(result);
     }
 }

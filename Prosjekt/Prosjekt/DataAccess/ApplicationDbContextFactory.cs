@@ -23,7 +23,7 @@ namespace Prosjekt.DataAccess
 
             var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-            // Fast MariaDB-versjon forhindrer nettverkskall under design-time
+            // A fixed MariaDB version prevents network calls at design time
             var serverVersion = new MariaDbServerVersion(new Version(11, 4, 0));
 
             builder.UseMySql(connectionString, serverVersion);

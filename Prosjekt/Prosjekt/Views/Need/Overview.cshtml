@@ -1,3 +1,6 @@
+@using System.Reflection
+@using System.ComponentModel.DataAnnotations
+@using Prosjekt.Models
 @using Prosjekt.Models.ModelView
 @model List<NeedViewModel>
 
@@ -13,6 +16,13 @@
         Importance.Medium => "#ffc107", // yellow
         _ => "#198754"                  // green
     };
+
+    string GetDisplayName(Enum enumValue)
+    {
+        var member = enumValue.GetType().GetMember(enumValue.ToString()).FirstOrDefault();
+        var displayAttr = member?.GetCustomAttribute<DisplayAttribute>();
+        return displayAttr?.Name ?? enumValue.ToString();
+    }
 }
 
 <h1 class="mb-4">Oversikt over behov</h1>
@@ -40,7 +50,7 @@
                                 <td>@item.Description</td>
                                 <td>@item.Total</td>
                                 <td>
-                                    <span class="badge" style="@($"background-color: {GetColor(item.Importance)}")">@item.Importance</span>
+                                    <span class="badge" style="@($"background-color: {GetColor(item.Importance)}")">@GetDisplayName(item.Importance)</span>
                                 </td>
                                 <td class="text-nowrap">
                                     <a asp-controller="Need" asp-action="Edit" asp-route-name="@item.Name" class="btn btn-sm btn-warning">Rediger</a>

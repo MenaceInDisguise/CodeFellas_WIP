@@ -1,3 +1,6 @@
+@using System.Reflection
+@using System.ComponentModel.DataAnnotations
+@using Prosjekt.Models
 @using Prosjekt.Models.ModelView
 @model NeedViewModel
 
@@ -5,7 +8,6 @@
     ViewData["Title"] = "Nytt behov opprettet";
 }
 
-@* Color per importance *@
 @functions {
     string GetColor(Importance v) => v switch
     {
@@ -13,6 +15,13 @@
         Importance.Medium => "#ffc107",
         _ => "#198754"
     };
+
+    string GetDisplayName(Enum enumValue)
+    {
+        var member = enumValue.GetType().GetMember(enumValue.ToString()).FirstOrDefault();
+        var displayAttr = member?.GetCustomAttribute<DisplayAttribute>();
+        return displayAttr?.Name ?? enumValue.ToString();
+    }
 }
 
 <h1>Nytt behov opprettet</h1>
@@ -26,7 +35,7 @@
             <p><strong>Antall som trengs:</strong> @Model.Total</p>
             <p>
                 <strong>Viktighet:</strong>
-                <span class="badge" style="@($"background-color: {GetColor(Model.Importance)}")">@Model.Importance</span>
+                <span class="badge" style="@($"background-color: {GetColor(Model.Importance)}")">@GetDisplayName(Model.Importance)</span>
             </p>
             <p class="mb-0"><strong>Posisjon:</strong> @Model.Latitude, @Model.Longitude</p>
         </div>
@@ -41,8 +50,8 @@
 
 @section Scripts {
     <script>
-        var lat = parseFloat('@Model.Latitude');
-        var lng = parseFloat('@Model.Longitude');
+        var lat = parseFloat('@Model.Latitude'.replace(',', '.'));
+        var lng = parseFloat('@Model.Longitude'.replace(',', '.'));
         var viktighetNummer = @((int)Model.Importance);
 
         if (!isNaN(lat) && !isNaN(lng)) {

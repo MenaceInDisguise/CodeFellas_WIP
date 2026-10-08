@@ -6,19 +6,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-// 1. Hent tilkoblingsstreng for kartdb fra Aspire eller appsettings.json
-var connectionString = builder.Configuration.GetConnectionString("kartdb")
+// 1. Hent tilkoblingsstreng
+var connectionString = builder.Configuration.GetConnectionString("Mapdb")
     ?? builder.Configuration.GetConnectionString("mariadbcontainer")
     ?? builder.Configuration.GetConnectionString("mysql")
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Missing database connection string for 'kartdb'.");
+    ?? throw new InvalidOperationException("Missing database connection string for 'Mapdb'.");
 
 // 2. Registrer repository
-builder.Services.AddScoped<IGeoEndringRepository, GeoEndringRepository>();
+builder.Services.AddScoped<IGeoChangeRepository, GeoChangeRepository>();
 
-// 3. Registrer DbContext med fast MariaDB-versjon og innebygd transient feilhåndtering
+// 3. Registrer DbContext
 var serverVersion = new MariaDbServerVersion(new Version(11, 4, 0));
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
         connectionString,
@@ -36,31 +35,19 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// 4. Direkte databaseinitialisering uten venteløkke
+// 4. Automatisk migrasjon ved oppstart (slik skolen krever)[cite: 7]
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    var db = services.GetRequiredService<ApplicationDbContext>();
-
     try
     {
+        var db = services.GetRequiredService<ApplicationDbContext>();
         db.Database.Migrate();
-        logger.LogInformation("Database 'kartdb' migrert og initialisert!");
     }
     catch (Exception ex)
     {
-        logger.LogWarning(ex, "Migrate feilet, forsøker EnsureCreated som fallback...");
-        try
-        {
-            db.Database.EnsureCreated();
-            logger.LogInformation("Database 'kartdb' sikret med EnsureCreated.");
-        }
-        catch (Exception finalEx)
-        {
-            logger.LogError(finalEx, "Klarte ikke å initialisere databasen 'kartdb'.");
-            throw;
-        }
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while applying database migrations.");
     }
 }
 
@@ -68,7 +55,6 @@ app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 app.UseDeveloperExceptionPage();
-
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthorization();
@@ -80,5 +66,3 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
-
-

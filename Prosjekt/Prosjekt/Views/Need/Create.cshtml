@@ -1,0 +1,84 @@
+@using Prosjekt.Models.ModelView
+@using Prosjekt.Models
+@model NeedViewModel
+
+@{
+    ViewData["Title"] = "Behov opprettet";
+}
+
+@* Hjelpefunksjoner for farge og norsk oversettelse av prioritet *@
+@functions {
+    string GetColor(Importance v) => v switch
+    {
+        Importance.High => "#dc3545",
+        Importance.Medium => "#ffc107",
+        _ => "#198754"
+    };
+
+    string GetImportanceText(Importance v) => v switch
+    {
+        Importance.High => "Høy",
+        Importance.Medium => "Middels",
+        _ => "Lav"
+    };
+}
+
+<h1>Behov opprettet</h1>
+<hr />
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="card p-3 h-100">
+            <p><strong>Navn:</strong> @Model.Name</p>
+            <p><strong>Beskrivelse:</strong> @Model.Description</p>
+            <p><strong>Totalt behov:</strong> @Model.Total</p>
+            <p>
+                <strong>Prioritet:</strong>
+                <span class="badge" style="@($"background-color: {GetColor(Model.Importance)}")">@GetImportanceText(Model.Importance)</span>
+            </p>
+            <p class="mb-0"><strong>Posisjon:</strong> @Model.Latitude, @Model.Longitude</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div id="kvitteringBehovKart" style="height: 280px;"></div>
+    </div>
+</div>
+
+<a asp-controller="Need" asp-action="Index" class="btn btn-secondary">Opprett et nytt behov til</a>
+<a asp-controller="Need" asp-action="Overview" class="btn btn-primary">Gå til oversikt</a>
+
+@section Scripts {
+    <script>
+        var lat = parseFloat('@Model.Latitude'.replace(',', '.'));
+        var lng = parseFloat('@Model.Longitude'.replace(',', '.'));
+        var importanceNumber = @((int)Model.Importance);
+
+        if (!isNaN(lat) && !isNaN(lng)) {
+            var kart = L.map('kvitteringBehovKart').setView([lat, lng], 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(kart);
+
+            function getIkon(fargeNavn) {
+                return new L.Icon({
+                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${fargeNavn}.png`,
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+            }
+            var ikoner = {
+                0: getIkon('green'),
+                1: getIkon('gold'),
+                2: getIkon('red')
+            };
+
+            var valgtIkon = ikoner[importanceNumber] || ikoner[0];
+
+            L.marker([lat, lng], { icon: valgtIkon }).addTo(kart);
+        }
+    </script>
+}

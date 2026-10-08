@@ -1,0 +1,89 @@
+﻿@using Prosjekt.Models.ModelView
+@model ResourceViewModel
+@{ ViewData["Title"] = "Endre Ressurs"; }
+
+<div class="row min-vh-100 g-0 mt-2">
+    <div class="col-lg-5 col-md-6 p-3 d-flex flex-column">
+        <h2 class="mb-4">Rediger Ressurs</h2>
+        <form asp-controller="Resource" asp-action="Edit" method="post" autocomplete="off" class="flex-grow-1">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" name="originalName" value="@Model.Name" />
+
+            <div class="border p-4 mb-3 rounded bg-light shadow-sm">
+                <div class="form-group mb-3"><label asp-for="Name" class="fw-bold">Navn</label><input asp-for="Name" class="form-control" /></div>
+                <div class="form-group mb-3"><label asp-for="Description" class="fw-bold">Beskrivelse</label><textarea asp-for="Description" class="form-control" rows="3"></textarea></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Category" class="fw-bold">Kategori</label>
+                    <select asp-for="Category" id="kategoriVelger" class="form-select" onchange="oppdaterSkjemavisning()">
+                        <option value="Vehicle">Kjøretøy</option>
+                        <option value="Provision">Provisjon</option>
+                        <option value="Materials">Materialer</option>
+                        <option value="Clothing">Klær</option>
+                        <option value="Tool">Verktøy</option>
+                        <option value="Other">Annet</option>
+                    </select>
+                </div>
+
+                <div id="seksjonKjøretøy" class="kategori-seksjon mb-3" style="display:none;">
+                    <label class="fw-bold">Kjøretøytype</label>
+                    <select id="inputVehicleType" name="VehicleType" class="form-select mb-2">
+                        <option value="Car">Bil</option><option value="Bus">Buss</option>
+                        <option value="Bicycle">Sykkel</option><option value="Motorcycle">Motorsykkel</option>
+                        <option value="Tractor">Traktor</option><option value="Truck">Lastebil</option>
+                        <option value="Other">Annet</option>
+                    </select>
+                    <label class="fw-bold">Skiltnummer</label>
+                    <input id="inputLicensePlate" name="LicensePlate" class="form-control" />
+                </div>
+                <!-- Legg til tilsvarende for de andre underkategoriene med name="..." -->
+                
+                <div class="form-group mb-3"><label asp-for="Quantity" class="fw-bold">Antall</label><input asp-for="Quantity" type="number" min="1" class="form-control" /></div>
+            </div>
+
+            <div class="row g-2 mb-3">
+                <div class="col-6"><label asp-for="Latitude" class="form-label small fw-bold">Breddegrad</label><input asp-for="Latitude" id="Latitude" class="form-control form-control-sm" readonly required /></div>
+                <div class="col-6"><label asp-for="Longitude" class="form-label small fw-bold">Lengdegrad</label><input asp-for="Longitude" id="Longitude" class="form-control form-control-sm" readonly required /></div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-50">Lagre</button>
+                <a asp-action="Overview" class="btn btn-secondary w-50">Avbryt</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-7 col-md-6 d-flex flex-column p-3"><div id="map" class="flex-grow-1 w-100 rounded shadow-sm" style="min-height: 400px; height: 60vh;"></div></div>
+</div>
+
+@section Scripts {
+    <script>
+        function oppdaterSkjemavisning() {
+            let valgtTekst = document.getElementById('kategoriVelger').value;
+            document.querySelectorAll('.kategori-seksjon').forEach(s => s.style.display = 'none');
+            if (valgtTekst === "Vehicle") document.getElementById('seksjonKjøretøy').style.display = 'block';
+            if (valgtTekst === "Provision") document.getElementById('seksjonProvisjon').style.display = 'block';
+            if (valgtTekst === "Materials") document.getElementById('seksjonMaterialer').style.display = 'block';
+            if (valgtTekst === "Clothing") document.getElementById('seksjonKlær').style.display = 'block';
+            if (valgtTekst === "Tool") document.getElementById('seksjonVerktøy').style.display = 'block';
+            if (valgtTekst === "Other") document.getElementById('seksjonAnnet').style.display = 'block';
+        }
+        document.addEventListener("DOMContentLoaded", function() { oppdaterSkjemavisning(); });
+
+        var lat = parseFloat('@Model.Latitude'); var lng = parseFloat('@Model.Longitude');
+        var harPosisjon = !isNaN(lat) && !isNaN(lng);
+        var startPunkt = harPosisjon ? [lat, lng] : [58.1467, 7.9956];
+
+        var map = L.map('map').setView(startPunkt, harPosisjon ? 14 : 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+
+        var currentMarker; if (harPosisjon) currentMarker = L.marker(startPunkt).addTo(map);
+
+        map.on('click', function(e) {
+            var klikketLat = e.latlng.lat.toFixed(6); var klikketLng = e.latlng.lng.toFixed(6);
+            document.getElementById('Latitude').value = klikketLat; document.getElementById('Longitude').value = klikketLng;
+            if (currentMarker) map.removeLayer(currentMarker);
+            currentMarker = L.marker([klikketLat, klikketLng]).addTo(map);
+        });
+        setTimeout(function () { map.invalidateSize(); }, 200);
+    </script>
+}

@@ -9,7 +9,7 @@ namespace Prosjekt.Xunit
         [Fact]
         public void Index_ReturnsViewResult()
         {
-            var controller = new InnstillingerController();
+            var controller = new SettingsController();
 
             var result = controller.Index();
 

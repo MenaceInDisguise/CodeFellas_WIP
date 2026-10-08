@@ -28,7 +28,7 @@
                             <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white-50" asp-area="" asp-controller="Home" asp-action="Personvern">Personvern</a>
+                            <a class="nav-link text-white-50" asp-area="" asp-controller="Home" asp-action="Privacy">Personvern</a>
                         </li>
                     </ul>
                 </div>
@@ -43,31 +43,31 @@
                 <ul class="nav nav-pills flex-column gap-2">
                     <strong>Registrering</strong>
                     <li class="nav-item">
-                        <a class="nav-link text-dark border" asp-area="" asp-controller="Ressurs" asp-action="Index">Registrer Ressurs</a>
+                        <a class="nav-link text-dark border" asp-area="" asp-controller="Resource" asp-action="Index">Registrer Ressurs</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark border" asp-area="" asp-controller="Behov" asp-action="Index">Registrer Behov</a>
+                        <a class="nav-link text-dark border" asp-area="" asp-controller="Need" asp-action="Index">Registrer Behov</a>
                     </li>
                     <strong>Oversikt</strong>
                     <li class="nav-item">
-                        <a class="nav-link text-dark border" asp-area="" asp-controller="Ressurs" asp-action="Oversikt">Oversikt over ressurser</a>
+                        <a class="nav-link text-dark border" asp-area="" asp-controller="Resource" asp-action="Overview">Oversikt over ressurser</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark border" asp-area="" asp-controller="Behov" asp-action="Oversikt">Oversikt over behov</a>
+                        <a class="nav-link text-dark border" asp-area="" asp-controller="Need" asp-action="Overview">Oversikt over behov</a>
                     </li>
                     <strong>Kriseinformasjon</strong>
                     <li class="nav-item">
-                        <a class="nav-link text-dark border" asp-area="" asp-controller="Kriseinformasjon" asp-action="Index">Kriseinformasjon</a>
+                        <a class="nav-link text-dark border" asp-area="" asp-controller="CrisisInformation" asp-action="Index">Kriseinformasjon</a>
                     </li>
 					<strong>Kart (Leaflet)</strong>
                     <li class="nav-item">
-                        <a class="nav-link text-dark border" asp-area="" asp-controller="GeoEndring" asp-action="CorrectMap">Registrer Geografisk Hendelse</a>
+                        <a class="nav-link text-dark border" asp-area="" asp-controller="GeoChange" asp-action="CorrectMap">Registrer Geografisk Hendelse</a>
                     </li>
                 </ul>
 
                 <!-- Innstillinger helt nederst uten boks -->
                 <div class="mt-auto">
-                    <a class="nav-link text-dark" asp-area="" asp-controller="Innstillinger" asp-action="Index"><strong>Innstillinger</strong></a>
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Settings" asp-action="Index"><strong>Innstillinger</strong></a>
                 </div>
             </aside>
 

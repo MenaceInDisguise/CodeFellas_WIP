@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Prosjekt.Controllers;
 using Xunit;
 
@@ -9,7 +10,7 @@ public class HomeControllerTests
     [Fact]
     public void Index_ReturnsViewResult()
     {
-        var controller = new HomeController();
+        var controller = new HomeController(new ConfigurationBuilder().AddInMemoryCollection().Build());
         var result = controller.Index();
         Assert.IsType<ViewResult>(result);
     }
@@ -17,7 +18,7 @@ public class HomeControllerTests
     [Fact]
     public void PrivacyPolicy_ReturnsViewResult()
     {
-        var controller = new HomeController();
+        var controller = new HomeController(new ConfigurationBuilder().AddInMemoryCollection().Build());
         var result = controller.PrivacyPolicy();
         Assert.IsType<ViewResult>(result);
     }

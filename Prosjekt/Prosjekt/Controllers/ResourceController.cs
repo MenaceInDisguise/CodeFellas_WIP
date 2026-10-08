@@ -93,6 +93,8 @@ namespace Prosjekt.Controllers
                         break;
 
                     case ResourceViewModel.ResourceType.Tool:
+                        string toolTypeStr = Request.Form[$"ResourceList[{i}].ToolType"].ToString();
+                        Enum.TryParse<ToolViewModel.ToolType>(toolTypeStr, out var toolType);
                         resourceToSave = new ToolViewModel
                         {
                             Name = baseResource.Name,
@@ -101,6 +103,7 @@ namespace Prosjekt.Controllers
                             Latitude = baseResource.Latitude,
                             Longitude = baseResource.Longitude,
                             Category = baseResource.Category,
+                            Type = toolType
                         };
                         break;
 

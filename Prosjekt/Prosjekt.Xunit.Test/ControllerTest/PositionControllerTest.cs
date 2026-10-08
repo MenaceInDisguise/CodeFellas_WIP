@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Prosjekt.DataAccess.Repositories;
 using Prosjekt.Controllers;
+using Prosjekt.Models.Entities;
 using Prosjekt.Models.ModelView;
 using Xunit;
 
@@ -7,10 +9,26 @@ namespace Prosjekt.Xunit
 {
     public class PositionControllerTest
     {
+        private sealed class FakeGeoChangeRepository : IGeoChangeRepository
+        {
+            private readonly List<GeoChange> _items = new();
+
+            public Task AddAsync(GeoChange geoChange)
+            {
+                _items.Add(geoChange);
+                return Task.CompletedTask;
+            }
+
+            public Task<IEnumerable<GeoChange>> GetAllAsync()
+            {
+                return Task.FromResult<IEnumerable<GeoChange>>(_items);
+            }
+        }
+
         [Fact]
         public void CorrectMap_Get_ReturnsViewResult()
         {
-            var controller = new GeoChangeController();
+            var controller = new GeoChangeController(new FakeGeoChangeRepository());
 
             var result = controller.CorrectMap();
 
@@ -18,15 +36,15 @@ namespace Prosjekt.Xunit
         }
 
         [Fact]
-        public void CorrectMap_Post_InvalidModelState_ReturnsViewWithModel()
+        public async Task CorrectMap_Post_InvalidModelState_ReturnsViewWithModel()
         {
-            var controller = new GeoChangeController();
+            var controller = new GeoChangeController(new FakeGeoChangeRepository());
 
             var model = new GeoChangeViewModel();
 
             controller.ModelState.AddModelError("Latitude", "Required");
 
-            var result = controller.CorrectMap(model);
+            var result = await controller.CorrectMap(model);
 
             var viewResult = Assert.IsType<ViewResult>(result);
 
@@ -35,9 +53,9 @@ namespace Prosjekt.Xunit
         }
 
         [Fact]
-        public void CorrectMap_Post_ValidModel_ReturnsCorrectionOverviewModel()
+        public async Task CorrectMap_Post_ValidModel_ReturnsRedirectToCorrectionOverview()
         {
-            var controller = new GeoChangeController();
+            var controller = new GeoChangeController(new FakeGeoChangeRepository());
 
             var model = new GeoChangeViewModel
             {
@@ -46,20 +64,16 @@ namespace Prosjekt.Xunit
                 Description = "Test"
             };
 
-            var result = controller.CorrectMap(model);
+            var result = await controller.CorrectMap(model);
 
-            var viewResult = Assert.IsType<ViewResult>(result);
-
-            Assert.Equal("CorrectionOverview", viewResult.ViewName);
-
-            var models = Assert.IsType<List<GeoChangeViewModel>>(viewResult.Model);
-            Assert.Contains(model, models);
+            var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal(nameof(GeoChangeController.CorrectionOverview), redirectResult.ActionName);
         }
 
         [Fact]
-        public void CorrectionOverview_ReturnsViewResultWithPositions()
+        public async Task CorrectionOverview_ReturnsViewResultWithPositions()
         {
-            var controller = new GeoChangeController();
+            var controller = new GeoChangeController(new FakeGeoChangeRepository());
 
             var model = new GeoChangeViewModel
             {
@@ -68,14 +82,17 @@ namespace Prosjekt.Xunit
                 Description = "Test"
             };
 
-            controller.CorrectMap(model);
+            await controller.CorrectMap(model);
 
-            var result = controller.CorrectionOverview();
+            var result = await controller.CorrectionOverview();
 
             var viewResult = Assert.IsType<ViewResult>(result);
 
             var models = Assert.IsType<List<GeoChangeViewModel>>(viewResult.Model);
-            Assert.Contains(model, models);
+            Assert.Contains(models, item =>
+                item.Latitude == model.Latitude &&
+                item.Longitude == model.Longitude &&
+                item.Description == model.Description);
         }
     }
 }

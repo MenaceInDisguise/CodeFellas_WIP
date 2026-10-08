@@ -1,10 +1,21 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Prosjekt.Models.ModelView.ResourceType
 {
     public class ToolViewModel : ResourceViewModel
     {
         public enum ToolType
         {
-            ElectricHandTool, MeasuringEquipment, HeavyEquipment, ManualTool, Other
+            [Display(Name = "Elektrisk håndverktøy")]
+            ElectricHandTool,
+            [Display(Name = "Måleutstyr")]
+            MeasuringEquipment,
+            [Display(Name = "Tungt utstyr")]
+            HeavyEquipment,
+            [Display(Name = "Manuelt verktøy")]
+            ManualTool,
+            [Display(Name = "Annet")]
+            Other
         }
 
         public ToolType Type { get; set; } = ToolType.ElectricHandTool;

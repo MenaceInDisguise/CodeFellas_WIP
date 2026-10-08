@@ -1,4 +1,5 @@
 using Prosjekt.Models.ModelView;
+using System.ComponentModel.DataAnnotations;
 
 namespace Prosjekt.Models.ModelView.ResourceType
 {
@@ -6,14 +7,23 @@ namespace Prosjekt.Models.ModelView.ResourceType
     {
         public enum MaterialType
         {
+            [Display(Name = "Treverk")]
             Wood,
+            [Display(Name = "Metall")]
             Metal,
+            [Display(Name = "Plastikk")]
             Plastic,
+            [Display(Name = "Glass")]
             Glass,
+            [Display(Name = "Grus")]
             Gravel,
+            [Display(Name = "Stein")]
             Stone,
+            [Display(Name = "Jord")]
             Soil,
+            [Display(Name = "Sand")]
             Sand,
+            [Display(Name = "Annet")]
             Other
         }
 

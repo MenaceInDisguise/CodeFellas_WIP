@@ -6,9 +6,10 @@ namespace Prosjekt.Models.ModelView.ResourceType
     {
         public enum ProvisionsType
         {
+            [Display(Name = "Vann")]
             Water,
 
-            [Display(Name = "Food (1 serving)")]
+            [Display(Name = "Food (1 porsjon)")]
             FoodOneServing
         }
 

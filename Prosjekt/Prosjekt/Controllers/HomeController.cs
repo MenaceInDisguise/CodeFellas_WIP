@@ -21,13 +21,10 @@ public class HomeController : Controller
             ?? "server=mariadbcontainer;port=3306;database=mysql;user=root;password=Gruppe12!";
     }
 
-    [HttpGet]
     public IActionResult Index()
     {
-        var positions = Prosjekt.Controllers.GeoChangeController.GetRegisteredPositions();
-        return View(positions);
+        return View();
     }
-
     public IActionResult Privacy()
     {
         return View();

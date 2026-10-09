@@ -5,31 +5,29 @@ namespace Prosjekt.DataAccess
 {
     public class ApplicationDbContext : DbContext
     {
+        /// <summary>
+        /// Initializes a new ApplicationDbContext with the specified DbContextOptions.
+        /// </summary>
+        /// <remarks>Register the context in the service container and supply
+        /// DbContextOptions<ApplicationDbContext>; the options are passed to the base DbContext constructor.</remarks>
+        /// <param name="options">Options for configuring the context, typically provided by dependency injection and forwarded to the base
+        /// DbContext.</param>
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<GeoEndring> GeoEndringer { get; set; }
+        public DbSet<GeoChange> GeoChanges { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Konfigurer GeoEndring-entiteten
-            modelBuilder.Entity<GeoEndring>(entity =>
+            modelBuilder.Entity<GeoChange>(entity =>
             {
                 entity.HasKey(e => e.Id);
-
-                // Forteller EF Core at Coordinates skal mappes til kolonnene Latitude og Longitude
                 entity.ComplexProperty(e => e.Coords, coord =>
                 {
-                    coord.Property(c => c.Latitude)
-                         .HasColumnName("Latitude")
-                         .IsRequired();
-
-                    coord.Property(c => c.Longitude)
-                         .HasColumnName("Longitude")
-                         .IsRequired();
+                    coord.Property(c => c.Latitude).HasColumnName("Latitude").IsRequired();
+                    coord.Property(c => c.Longitude).HasColumnName("Longitude").IsRequired();
                 });
-
                 entity.Property(e => e.Description);
                 entity.Property(e => e.ChangeTypes);
                 entity.Property(e => e.Radius);

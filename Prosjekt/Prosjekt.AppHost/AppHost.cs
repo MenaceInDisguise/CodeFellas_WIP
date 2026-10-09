@@ -5,7 +5,7 @@ var mariadb = builder.AddMySql("mariadbcontainer", password: builder.AddParamete
                      .WithImage("mariadb", "latest");
 
 // Byttet databasenavn fra "mysql" til "kartdb"
-var kartDb = mariadb.AddDatabase("kartdb");
+var kartDb = mariadb.AddDatabase("Mapdb");
 
 // 2. Registrer webappen fra Dockerfile, sett opp porter og koble til databasen
 builder.AddDockerfile(

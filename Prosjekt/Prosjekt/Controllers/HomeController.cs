@@ -3,13 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using Prosjekt.Models;
 using Prosjekt.Models.ModelView;
 using MySqlConnector;
-
 namespace Prosjekt.Controllers;
+
 public class HomeController : Controller
 {
+    /// <summary>
+    /// Database connection string used to create connections to the target database.
+    /// </summary>
+    /// <remarks>Assigned during construction and immutable thereafter. Should contain provider-specific
+    /// connection settings required by the data provider.</remarks>
     private readonly string _connectionString;
 
-    // Konstruktør som henter tilkoblingen fra Aspire sin konfigurasjon
     public HomeController(IConfiguration configuration)
     {
         _connectionString = configuration.GetConnectionString("mysql")
@@ -20,18 +24,16 @@ public class HomeController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var posisjoner = Prosjekt.Controllers.GeoEndringController.GetRegisteredPositions();
-        return View(posisjoner);
+        var positions = Prosjekt.Controllers.GeoChangeController.GetRegisteredPositions();
+        return View(positions);
     }
 
-    //Viser side med informasjon om personvern.
-    public IActionResult Personvern()
+    public IActionResult Privacy()
     {
         return View();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    //Viser en feilmeldingsside dersom det oppstår en feil.
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

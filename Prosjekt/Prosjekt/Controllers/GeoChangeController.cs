@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Prosjekt.DataAccess.Repositories;
-using Prosjekt.Models;
 using Prosjekt.Models.ModelView;
 using Prosjekt.Models.Entities;
+using Prosjekt.Utils;
 namespace Prosjekt.Controllers
+
 {
     public class GeoChangeController : Controller
     {
@@ -60,7 +61,7 @@ namespace Prosjekt.Controllers
                 ChangeTypes = model.SelectedChangeTypes != null && model.SelectedChangeTypes.Any()
                     ? string.Join(", ", model.SelectedChangeTypes)
                     : string.Empty,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = NorwegianTime.Now,
             };
 
             await _repo.AddAsync(geoChange);

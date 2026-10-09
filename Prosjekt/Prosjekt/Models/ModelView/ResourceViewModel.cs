@@ -20,24 +20,33 @@ namespace Prosjekt.Models.ModelView
             Other
         }
 
-        [Required(ErrorMessage = "Navn må fylles ut. ")]
         [Display(Name = "Navn")]
+        [Required(ErrorMessage = "Navn må fylles ut. ")]
         public string Name { get; set; } = string.Empty;
 
+
         [Display(Name = "Beskrivelse")]
+        [Required(ErrorMessage = "Beskrivelse må fylles ut.")]
         public string Description { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Antall må være minst 1.")]
+
         [Display(Name = "Antall")]
+        [Required(ErrorMessage = "Antall må være minst 1.")]
         public int Quantity { get; set; } = 0;
 
+
         [Display(Name = "Breddegrad")]
+        [Required(ErrorMessage = "Du må legge inn breddegrad")]
         public double? Latitude { get; set; }
 
+
         [Display(Name = "Lengdegrad")]
+        [Required(ErrorMessage = "Du må legge inn lengdegrad")]
         public double? Longitude { get; set; }
 
+
         [Display(Name = "Kategori")]
+        [Required(ErrorMessage = "Du må velge en kategori")]
         public ResourceType Category { get; set; } = ResourceType.Other;
     }
 }

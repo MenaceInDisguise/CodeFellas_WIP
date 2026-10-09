@@ -28,17 +28,10 @@ namespace Prosjekt.Controllers
         {
             if (string.IsNullOrWhiteSpace(model.Name) || string.IsNullOrWhiteSpace(model.Description) || model.Total <= 0)
             {
-                ModelState.AddModelError("", "Alle felt må fylles ut gyldig.");
                 return View("Index", model);
             }
 
-            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
-            {
-                ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
-                return View("Index", model);
-            }
-
-            var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
+            var coords = new Coordinates(model.Latitude!.Value, model.Longitude!.Value);
 
             if (!coords.IsValid())
             {
@@ -78,32 +71,22 @@ namespace Prosjekt.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(string originalName, NeedViewModel model)
         {
-            if (string.IsNullOrWhiteSpace(model.Name) || string.IsNullOrWhiteSpace(model.Description) || model.Total <= 0)
-            {
-                return View(model);
-            }
-
             if (string.IsNullOrEmpty(originalName))
             {
                 return BadRequest();
-            }
-
-            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
-            {
-                ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
-                return View(model);
             }
 
             var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
 
             if (!coords.IsValid())
             {
-                ModelState.AddModelError("", "De oppgitte koordinatene er ugyldige.");
                 return View(model);
             }
 
+
             if (!ModelState.IsValid)
             {
+                ModelState.AddModelError("", "De oppgitte koordinatene er ugyldige.");
                 return View(model);
             }
 

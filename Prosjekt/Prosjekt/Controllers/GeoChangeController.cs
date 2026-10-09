@@ -32,23 +32,14 @@ namespace Prosjekt.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.ChangeTypes = new GeoChangeViewModel().ChangeTypes;
                 return View(model);
             }
 
-            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
-            {
-                ModelState.AddModelError(string.Empty, "Posisjon må velges i kartet.");
-                model.ChangeTypes = new GeoChangeViewModel().ChangeTypes;
-                return View(model);
-            }
-
-            var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
+            var coords = new Coordinates(model.Latitude!.Value, model.Longitude!.Value);
 
             if (!coords.IsValid())
             {
                 ModelState.AddModelError(string.Empty, "De oppgitte koordinatene er ugyldige.");
-                model.ChangeTypes = new GeoChangeViewModel().ChangeTypes;
                 return View(model);
             }
 
@@ -85,12 +76,6 @@ namespace Prosjekt.Controllers
             }).ToList();
 
             return View(viewModels);
-        }
-
-        [HttpGet]
-        public static List<GeoChangeViewModel> GetRegisteredPositions()
-        {
-            return new List<GeoChangeViewModel>();
         }
     }
 }

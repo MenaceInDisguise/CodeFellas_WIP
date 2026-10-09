@@ -23,10 +23,8 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        var positions = Prosjekt.Controllers.GeoChangeController.GetRegisteredPositions();
-        return View(positions);
+        return View();
     }
-
     public IActionResult Privacy()
     {
         return View();

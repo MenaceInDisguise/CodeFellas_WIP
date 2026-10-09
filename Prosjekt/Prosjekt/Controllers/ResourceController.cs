@@ -4,13 +4,14 @@ using Prosjekt.Models.ModelView;
 using Prosjekt.Models.ModelView.ResourceType;
 using System.Collections.Concurrent;
 
-
 namespace Prosjekt.Controllers
 {
     /// <summary>
-    /// Håndterer registrering, visning, redigering og sletting av ressurser.
-    /// Hver ressurs har navn, beskrivelse, antall og en posisjon valgt i kartet (Leaflet).
+    /// Provides MVC actions to create, edit, list, and delete resources stored in an in-memory, thread-safe dictionary.
     /// </summary>
+    /// <remarks>Validates model state and coordinates, maps posted form fields to specialized view models
+    /// (Vehicle, Tool, Clothing, Provision, Materials), and protects POST actions with anti-forgery validation.
+    /// Resources are keyed by name using a case-insensitive, concurrent dictionary as the in-memory store.</remarks>
     public class ResourceController : Controller
     {
         private static readonly ConcurrentDictionary<string, ResourceViewModel> _resourceDatabase = new(StringComparer.OrdinalIgnoreCase);
@@ -25,38 +26,35 @@ namespace Prosjekt.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(ResourceCreatorViewModel model)
         {
-            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
+            if (model.Latitude.HasValue && model.Longitude.HasValue && model.ResourceList != null)
             {
-                ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
-            }
-            else
-            {
-                var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
-                if (!coords.IsValid())
+                foreach (var item in model.ResourceList)
                 {
-                    ModelState.AddModelError("", "De oppgitte koordinatene er ugyldige.");
+                    item.Latitude = model.Latitude;
+                    item.Longitude = model.Longitude;
                 }
-            }
 
-            if (model.ResourceList == null || !model.ResourceList.Any())
-            {
-                ModelState.AddModelError("", "Du må legge til minst én ressurs i listen.");
-            }
-            else
-            {
-                for (int i = 0; i < model.ResourceList.Count; i++)
+                foreach (var key in ModelState.Keys.Where(k => k.EndsWith(".Latitude") || k.EndsWith(".Longitude")).ToList())
                 {
-                    var item = model.ResourceList[i];
-                    if (string.IsNullOrWhiteSpace(item.Name) || item.Quantity <= 0)
-                    {
-                        ModelState.AddModelError("", $"Ressurs #{i + 1} må ha et gyldig navn og antall over 0.");
-                    }
+                    ModelState.Remove(key);
                 }
             }
 
             if (!ModelState.IsValid)
             {
-                // Hvis valideringen feiler, sender vi brukeren tilbake til skjemaet (Index/Create)
+                return View("Index", model);
+            }
+
+            if (model.ResourceList == null || !model.ResourceList.Any())
+            {
+                ModelState.AddModelError("", "Du må legge til minst én ressurs i listen.");
+                return View("Index", model);
+            }
+
+            var coords = new Coordinates(model.Latitude!.Value, model.Longitude!.Value);
+            if (!coords.IsValid())
+            {
+                ModelState.AddModelError("", "De oppgitte koordinatene er ugyldige.");
                 return View("Index", model);
             }
 
@@ -151,13 +149,7 @@ namespace Prosjekt.Controllers
                 lastSavedResource = resourceToSave;
             }
 
-            if (lastSavedResource == null)
-            {
-                return RedirectToAction(nameof(Overview));
-            }
-
-            // Sender nå med 'lastSavedResource' som er av typen ResourceViewModel, 
-            // slik at den matcher det kvitteringssiden (@model ResourceViewModel) forventer.
+            // Siden vi har bekreftet at ResourceList ikke er tom, vil lastSavedResource alltid ha en verdi her
             return View("Create", lastSavedResource);
         }
 
@@ -183,31 +175,20 @@ namespace Prosjekt.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(string originalName, ResourceViewModel model)
         {
-            if (string.IsNullOrWhiteSpace(model.Name) || string.IsNullOrWhiteSpace(model.Description) || model.Quantity <= 0)
-            {
-                return View(model);
-            }
-
             if (string.IsNullOrEmpty(originalName))
             {
                 return BadRequest();
             }
 
-            if (!model.Latitude.HasValue || !model.Longitude.HasValue)
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("", "Du må velge en posisjon i kartet.");
                 return View(model);
             }
 
-            var coords = new Coordinates(model.Latitude.Value, model.Longitude.Value);
+            var coords = new Coordinates(model.Latitude!.Value, model.Longitude!.Value);
             if (!coords.IsValid())
             {
                 ModelState.AddModelError("", "Du må velge en gyldig posisjon.");
-                return View(model);
-            }
-
-            if (!ModelState.IsValid)
-            {
                 return View(model);
             }
 
@@ -301,7 +282,6 @@ namespace Prosjekt.Controllers
             return RedirectToAction(nameof(Overview));
         }
 
-        // Sletter ressursen med gitt navn.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(string name)
